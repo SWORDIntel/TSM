@@ -1,0 +1,61 @@
+{
+  "title": "Audit Log Entry",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "A unique identifier for the log entry (e.g., UUID)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 format with UTC timezone."
+    },
+    "actorId": {
+      "type": "string",
+      "description": "The User or Session ID performing the action."
+    },
+    "actionType": {
+      "type": "string",
+      "enum": [
+        "SESSION_LOGIN",
+        "SESSION_SWITCH",
+        "REMOTE_WIPE_SENT"
+      ],
+      "description": "A controlled vocabulary string."
+    },
+    "targetId": {
+      "type": "string",
+      "description": "The object of the action (e.g., the session ID being switched to)."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILURE"
+      ],
+      "description": "The outcome of the action."
+    },
+    "sourceIp": {
+      "type": "string",
+      "format": "ipv4",
+      "description": "The IP address of the request origin."
+    },
+    "previousEntryHash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "The SHA-256 hash of the preceding log entry."
+    }
+  },
+  "required": [
+    "eventId",
+    "timestamp",
+    "actorId",
+    "actionType",
+    "targetId",
+    "outcome",
+    "sourceIp",
+    "previousEntryHash"
+  ]
+}
