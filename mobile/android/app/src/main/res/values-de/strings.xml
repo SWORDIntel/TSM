@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">TSM</string>
+    <string name="settings">Einstellungen</string>
+    <string name="enable_notifications">Benachrichtigungen aktivieren</string>
+    <string name="dark_mode">Dunkelmodus</string>
+    <string name="remote_wipe">Fernlöschung</string>
+    <string name="are_you_sure">Bist du sicher?</string>
+    <string name="action_cannot_be_undone">Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="confirm">Bestätigen</string>
+    <string name="dismiss">Verwerfen</string>
+    <string name="session_details">Sitzungsdetails</string>
+</resources>
