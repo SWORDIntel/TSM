@@ -8,7 +8,7 @@ import io.grpc.ManagedChannelBuilder
 
 class NetworkManager {
 
-    private val channel: ManagedChannel = ManagedChannelBuilder.forAddress("localhost", 50051)
+    private val channel: ManagedChannel = ManagedChannelBuilder.forAddress("192.168.0.2", 50051)
         .usePlaintext()
         .build()
 

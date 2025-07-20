@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
     id("com.google.protobuf") version "0.9.4"
 }
 
@@ -84,14 +85,14 @@ protobuf {
         artifact = "com.google.protobuf:protoc:3.21.7"
     }
     plugins {
-        id("grpc") {
+        create("grpc") {
             artifact = "io.grpc:protoc-gen-grpc-java:1.50.2"
         }
     }
     generateProtoTasks {
         all().forEach {
             it.plugins {
-                id("grpc") {}
+                create("grpc") {}
             }
         }
     }
