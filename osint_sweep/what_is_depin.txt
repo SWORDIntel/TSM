@@ -1,0 +1,403 @@
+DePIN stands for Decentralized Physical Infrastructure Networks. It's a
+new way to build and maintain infrastructure in the physical world.
+This "infrastructure" can be anything from WiFi hotspots in wireless
+networks to solar-powered home batteries in energy networks. DePINs are
+built out in a decentralized way, by individuals and companies all over
+the world, for anyone to use. In return, these contributors receive
+financial compensation and an ownership stake in the network they're
+building and the services they're providing (via token incentives).
+DePINs are made possible through widespread Internet connectivity and
+technological advancements in blockchain infrastructure and
+cryptography.
+
+Here at IoTeX, we're big believers that the infrastructure of the
+future should be open, permissionless, and built by as many network
+participants as possible. We've been working at the intersection of
+physical devices (and their data) and blockchain technologies since
+2017 (long before "DePIN" was even a thing). The way the world's
+infrastructure is built and deployed has remained stagnant for far too
+long and we can't wait to help change that for the better.
+
+With DePINscan, builders have access to an out-of-the-box map
+explorer and dashboard. Providing invaluable data-driven insights to
+the greater DePIN community. Connected devices on DePINscan have grown
+by over 300k in the past month.
+
+What happens when crypto and blockchain meet the physical world?
+
+The advent of blockchain technology has had a large, innovative impact
+on many industries, ranging from finance (DeFi) to gaming (play to
+earn) to art (generative NFTs and trustless authentication). However,
+one area that has remained largely unchanged is physical
+infrastructure.
+
+Traditionally, the deployment and management of physical infrastructure
+like wireless networks, cloud services, mobility networks and power
+grids has been dominated by large corporations due to the high capital
+requirements and logistical challenges associated with projects of this
+size. As a result, these centralized entities have had a near-monopoly
+on pricing and services offered to end-users, leading to a lack of
+competition and innovation. This results in an experience for consumers
+that is often subpar. Just take a look at the NPS (net promoter score,
+a measure of customer satisfaction) for the oligopoly that is the
+telecommunications industry in the United States (hint, it's incredibly
+low).
+
+However, even as we surface the undesirable results of infrastructure
+built by a few, centralized corporations, there is hope! Companies that
+leverage the assets, time, and energy of network members to provide
+their services are operating in the exciting middle ground between
+fully centralized infrastructure and DePIN. This concept is called the
+"Sharing Economy".
+
+DePIN as the evolution of the Sharing Economy
+
+Companies like Uber and Airbnb have unlocked massive amounts of value
+utilizing this "Sharing Economy" model. The "Sharing Economy" describes
+how Uber, Airbnb, and others leverage contributors (and their assets)
+to provide valuable goods and services. The diagram below shows how the
+"Sharing Economy" typically works.
+
+However, because Uber is a centralized entity, the power over its
+network, drivers, and business remain in the hands of Uber itself. The
+decentralized physical infrastructure movement seek to build on the
+idea of a "Sharing Economy" but to do so in a way that is fairer and
+more inclusive to the individuals and businesses actually building out
+the network and making this all possible.
+
+To give an example of this in action, consider Drife. Drife is a
+DePIN version of Uber. Drife works similarly to Uber, matching riders
+with drivers who own their vehicles and are willing to drive for money.
+Riders pay fiat and drivers receive ~100% of that fiat payment.
+However, since Drife is a decentralized protocol (and not one,
+centralized corporation), drivers receive the $DRF token in recognition
+of their contributions and can both suggest and vote on changes to the
+protocol and its rules. In the future, Drife plans to use IoTeX's
+W3bstream to issue additional token incentives to drivers who are
+willing to drive in undercovered areas where driver supply is currently
+low. This will help expand the geographical footprint of Drife's driver
+network and benefit users greatly. This is a powerful, more inclusive
+version of the Sharing Economy that removes the middleman (Uber) and
+replaces it with a decentralized protocol, allowing for cheaper rides
+for riders, higher revenue for drivers, and the ability for drivers to
+exert influence on the network they're helping build every day.
+
+We've seen how DePIN takes the "Sharing Economy" one step further with
+token incentives and distributed governance. But DePINs bring many
+other exciting innovations to the infrastructure of the future too!
+
+Why DePINs are the future
+
+DePIN has several benefits over traditional physical infrastructure
+networks:
+1. Collective ownership: Through the use of token rewards,
+   contributors are encouraged to deploy and maintain infrastructure.
+   DePIN's bottom-up approach means that the network is collectively
+   owned by its participants, rather than a small group of
+   shareholders.
+2. Distributed Infrastructure Cost: A decentralized physical
+   infrastructure network reduces overhead and expenses by leveraging
+   the collective resources of a network's participants.
+3. Decentralization: A decentralized network offers a more resilient
+   and secure infrastructure compared to traditional, centralized
+   infrastructure networks. Building a network in a decentralized
+   manner means that the network is less susceptible to corruption,
+   hijacking and hacks, and other negative externalities associated
+   with centralized control.
+4. Open Competition and Innovation: DePIN enables new levels of
+   innovation across various sectors. By removing the barriers to
+   entry associated with traditional infrastructure networks, DePIN
+   encourages new entrants to compete in markets that were previously
+   dominated by a few established players.
+
+Many of the assets that we own or actions that we take every day have
+untapped value. If you're going to be driving your car anyways, why not
+have a DIMO device installed under the steering wheel to collect and
+monetize your car data? Or a Hivemapper mapping device on the dashboard
+that collects images of the road and builds a decentralized version of
+Google Maps? You can earn tokens and participate in both of these
+networks just from the comfort of your car! You could also install a
+smart meter, solar panel, or battery at your home to participate in
+Daylight Energy's DePIN project, earn tokens, and contribute energy to
+the grid when demand exceeds supply. All of these examples represent
+DePIN use cases that could be present in your everyday life. Now that
+you can picture how DePIN could impact your day to day routine, let's
+zoom out a bit and add some context about where DePIN fits into the
+broader crypto landscape today.
+
+DePIN within the context of crypto as a whole
+
+While DePIN is a smaller, emerging sector of crypto today, its
+potential for growth is massive as this model is used to build better
+networks across industries as diverse and as large as telecom, energy,
+mobility, and storage.
+
+While the real world economy is easily valued in the hundreds of
+trillions of dollars, Messari recently wrote that the DePIN
+sector's total addressable market is currently ~$2.2T and could reach
+~$3.5T by 2028. This is ~3x the market cap of all of crypto today. The
+FDV (fully diluted value) of all decentralized physical infrastructure
+projects is currently only ~$5B. DePIN projects are looking to solve
+some of the world's most fundamental problems by leveraging blockchain
+technology, token incentives, and the power of the Internet.
+
+Here's a sector map that includes most of the DePIN projects on the
+market today. We've categorized them into four broad groups: server
+projects, infrastructure, sensor projects, and wireless projects. IoTeX
+(and our W3bstream product) are a core part of the infrastructure
+powering these DePIN projects, as we help connect smart devices and
+their data to smart contracts on blockchains. W3bstream is middleware.
+It's a general purpose, off-chain compute environment that's focused on
+reducing go-to-market time for DePIN and RWA projects and acting as an
+"oracle for the real world".
+
+DePINscan is a new data aggregation and visualization tool that
+shines the light of transparent data on the entire DePIN sector.
+DePINscan’s Map and Discover features create a full picture of the
+projects that make up this sector and its connected devices.
+
+Read on to hear about the history of the "DePIN" term and the other
+acronyms that were used before it to describe this space.
+
+The DePIN origin story
+
+The term "DePIN" is the acronym the industry has settled on to describe
+this up and coming sector of crypto. We have Messari to thank for
+suggesting this acronym and uniting the space under one banner, but
+there have been a few other terms used to describe this sector in the
+past that are worth exploring.
+
+In November of 2021, IoTeX became the first to place a label on this
+up-and-coming sector, calling it MachineFi (a play on words
+combining "machine" with "DeFi" to represent the financialization of
+machines and their data).
+
+In April of 2022, "Proof of Physical Work" (PoPW) was introduced by
+Multicoin, explicitly referring to incentive structures that enable
+anyone to contribute permissionlessly to a set of shared objectives.
+
+In July of 2022, "Token Incentivized Physical Networks" (TIPIN) was
+coined by Lattice to describe networks that use token incentives to
+motivate individuals to participate in the deployment and operation of
+decentralized networks.
+
+In September of 2022, "EdgeFi" was proposed by Borderless Capital
+to include decentralized infrastructure networks that focus on
+deploying hardware resources closer to end-users at the network's edge.
+
+In November of 2022, Messari conducted a Twitter poll to unite the
+space under one acronym, with voters choosing between PoPW, TIPIN,
+EdgeFi, and DePIN. DePIN won with 31.6% of the votes.
+
+On December 22, 2022, in its annual "Theses", Messari mentioned
+"DePIN" in research for the first time, stating that it "will be one of
+the most important areas of crypto investment for the next decade."
+
+On January 19, 2023, Messari published a report devoted entirely to
+DePIN and the rest is history.
+
+While there will undoubtedly be new acronyms suggested as this space
+grows and matures, we stand behind "DePIN" given that the defining
+characteristic of these networks (and their primary differentiator) is
+their decentralization.
+
+However, this decentralization brings unique challenges and creates a
+much different design space for the deployment and maintenance of
+physical infrastructure networks in the real world, today.
+
+DePIN creates a totally new design space for physical infrastructure
+
+Each DePIN network will involve real-world devices that are generating
+and sharing their data. As this dataset grows larger and larger, the
+design space for dapps to be built to utilize various subsets of this
+data or to serve niches in each market that pop up grows larger and
+larger as well. Take DIMO for instance. DIMO is a DePIN mobility
+project focused on collecting car data, analyzing it, and providing
+value-added services to car owners. DIMO functions as an open data
+platform, allowing developers to build dapps on top of the data that is
+collected by the network to provide valuable services to car owners
+themselves.
+
+DePINs are built on four fundamental components that allow for
+innovation far beyond what centralized networks can provide:
+1. Physical infrastructure: DePINs require physical infrastructure to
+   be built out and maintained in the physical world.
+2. Offchain compute infrastructure: DePIN relies on middleware that
+   allows real-world data to be ingested, analyzed, and then used to
+   calculate user contributions and actual demand.
+3. Blockchain architecture: Blockchains function as tamperproof
+   ledgers, device registries, and the home of token economies.
+4. Token incentives: Tokens are used both as an incentive to build out
+   the supply-side of a network (e.g. motivate contributors) and also
+   often as the currency that demand for the network's services is
+   priced in (e.g. purchasing broadband access).
+
+These components are powerful new tools in the toolkits of DePIN
+builders, but this power comes at a cost. Building any kind of physical
+infrastructure in the real world is difficult. Correctly setting up and
+then implementing functional, decentralized middleware that records
+real-world activity on a blockchain, which is then stored immutably and
+used to trigger token incentives within a purpose-built token economy
+is even more difficult. However, DePIN networks have a secret
+superpower that helps them overcome these difficulties that we'll
+explore in the next section.
+
+The DePIN Flywheel
+
+Due to their use of a token, DePIN projects can benefit from a positive
+flywheel effect where increased usage (demand) increases token price
+through burns or buybacks, which then provides extra incentive for
+contributors to continue building out the network as the dollar value
+of the tokens they are paid increases.
+
+As the network grows, investors become more and more interested and
+begin to support the project with funding. If a project is open-source
+or makes contributor/user data available to the public, developers can
+build dapps on top of the data, creating additional value within the
+ecosystem which attracts more users and contributors alike. The image
+below demonstrates an example of how this Flywheel works in the market
+today.
+
+Helium used this Flywheel to great effect to motivate people around
+the world to build out the world's largest IoT network in just three
+years (400k+ hotspots online globally). The Helium Network proved out
+the power of this Flywheel effect and provided a blueprint for the rest
+of the DePIN industry, which is now utilizing it to great effect in
+sectors as diverse as energy, mobility, and weather!
+
+While DePIN projects will no doubt utilize their tokens and this
+Flywheel effect to catalyze their network growth, IoTeX is ready and
+willing to help DePIN projects on other fronts as well.
+
+IoTeX's role in the DePIN sector
+
+In May of 2023, Messari published a follow-up piece on DePIN
+infrastructure, including an analysis of the various blockchains that
+DePIN projects are building on and also other companies serving the
+industry in a variety of ways.
+
+IoTeX was mentioned as an EVM-compatible Layer 1 blockchain
+purpose-built for machine data and DePIN startups. Our W3bstream
+off-chain compute platform connects data from smart devices to smart
+contracts. The image below describes how W3bstream sits in between the
+blockchain and physical devices as a real-world "oracle", similar to
+Chainlink. Our hardware development kits, embedded SDKs for Android,
+iOS, Arduino, Raspberry Pi, as well as our API and cloud backend
+connection options provide an easy way for developers to ingest data
+from the physical world into their W3bstream environment.
+
+W3bstream supports all EVM-compatible chains and will soon expand
+support for non-EVM chains like Solana that are popular with DePIN
+developers as well.
+
+Outside of W3bstream, IoTeX has a variety of other products and
+services that enable DePIN development. The picture below shows the
+myriad of ways in which we look to catalyze the DePIN sector across the
+entire tech stack.
+
+How IoTeX helps
+
+IoTeX is the go-to infrastructure provider for any company looking to
+represent physical devices and their data (and do something with that
+data) on-chain! We enable DePIN innovation and assist ambitious
+builders by providing decentralized infrastructure, developer tools,
+and go-to-market support. Our expertise comprises three primary
+components:
+
+🏗️ Blockchain & Off-chain Compute Infrastructure
+  * IoTeX W3bstream is a first-of-its-kind, chain-agnostic,
+    decentralized protocol that connects real-world data from smart
+    devices to smart contracts. W3bstream provides an off-chain
+    environment for developers to crowdsource data from users' smart
+    devices. It generates "proofs of real-world activity" that can
+    trigger smart contracts to deliver digital assets (such as
+    cryptocurrency, stablecoins, and NFTs) to users.
+  * IoTeX L1 is a secure, decentralized, and developer-friendly
+    platform for building and scaling Web 3.0 and DePIN applications.
+
+🛠️ Developer Tools
+  * ioPay is a multi-chain crypto wallet for managing IoTeX
+    accounts and major L1s/L2s.
+  * ioTube is a cross-chain bridge for transferring tokens between
+    IoTeX and major L1s/L2s.
+  * iotexscan is an IoTeX blockchain explorer for viewing the full
+    transaction history and asset holdings.
+  * Staking Portal makes it easy to stake $IOTX tokens and vote for
+    Delegates to join network consensus.
+  * Fastblocks is IoTeX's "Infura" for easily starting and managing
+    blockchain full nodes or Delegate nodes.
+  * Developer Portal and Docs are for developers to access
+    step-by-step tutorials, technical blog articles, updates, and
+    comprehensive guides to acquire knowledge on constructing
+    applications and contribute to and expand within the community
+  * DePINscan is a public good that empowers investors and DePIN
+    enthusiasts with information crucial to making important investment
+    decisions such as the project to invest in or which DePIN hardware
+    to purchase. DePINscan is fueled by several sources including the
+    W3bstream Trusted Metrics API and other third party APIs.
+
+📦 Go-to-Market Package
+  * Open Hardware Manufacturing Support: Ucam and Pebble
+    Tracker are two in-house hardware we designed and built for
+    developers to experiment with crazy ideas of real world +
+    blockchain that is widely recognized by the developer community. We
+    have the expertise to design, manufacture, and ship web3 native
+    hardware and can assist DePIN projects with their own hardware
+    strategy.
+  * IoTeX Halo Grants: This is the program to accelerate the growth
+    of the IoTeX ecosystem by providing technical guidance, financial
+    support, marketing and community engagement, and investment
+    opportunities to projects promoting the growth and adoption of
+    IoTeX technology.
+  * IoTeX Ecosystem Fund: The IoTeX Foundation has launched a
+    Sustainable Ecosystem Fund to support builders accelerating the
+    IoTeX ecosystem across different categories of applications
+    including DeFi, GameFi, NFTs, DAOs, DePIN, and Real World Web3 with
+    the aim of connecting billions of smart devices to the blockchain
+    networks and building the Web3 machine economy.
+  * Project Launch Stacks: Manage project initial liquidity on
+    mimo.exchange, launchpads, coin listing on major dashboards,
+    connection to top tier crypto exchanges and money makers, and many
+    more.
+  * Community and Events: IoTeX has developed a robust community
+    focused on real-world web3 applications since 2017, utilizing
+    various social media platforms to foster engagement. We also invite
+    DePIN projects into events (https://r3alworld.com) we host,
+    e.g., R3alworld@ETHDenver’23 attracted 1000+ DePIN developers and
+    investors.
+
+Across our blockchain and off-chain compute infrastructure, developer
+tooling, and go-to-market package, IoTeX has helped (and will continue
+to help) promising DePIN projects grow and gain traction for years to
+come.
+
+DePIN: let's build tomorrow's infrastructure together, today
+
+To recap, Decentralized Physical Infrastructure Networks (DePIN)
+represent a paradigm shift in the deployment and maintenance of
+physical infrastructure. By leveraging cryptoeconomic protocols and
+blockchain technology, DePINs enable a more efficient, decentralized,
+and equitable approach to infrastructure deployment.
+
+With the ability to scale rapidly and the potential to disrupt large
+traditional industries, DePIN has the potential to become a major
+player in the world of infrastructure. As more of these projects are
+developed and deployed, we can expect to see significant disruption and
+innovation in the way we build and maintain physical infrastructure
+networks.
+
+While any revolutionary new technology brings with it unique
+challenges, we remain convinced of the power of this model to improve
+the infrastructure and quality of life of the world's population. Here
+at IoTeX, we're incredibly excited about the innovation and growth that
+are occurring here and will continue to support the DePIN space in
+every way possible. If you're as excited as we are about building out
+infrastructure in a decentralized way, head over to
+https://w3bstream.com/ to learn more.
+For more specific inquiries, please contact our team members below:
+  * If you're a developer, contact our Dev Rel lead Simone at
+    [email protected]
+  * If you're a project founder, contact our BD lead Larry at
+    [email protected]
+  * If you're an investor, contact our Head of Investment Jing at
+    [email protected]

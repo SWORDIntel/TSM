@@ -1,0 +1,47 @@
+Documents
+Team
+Shop
+Activate
+Explorer
+Join the XNET Army! Get important network updates, exclusive discounts,
+and deployment tips. Enlist now!
+(BUTTON)
+Sign Up!
+XNET
+The Next Mobile Carrier
+Overview
+Solana
+Banner
+The Future of Wireless on Solana. Enterprise-grade Passpoint
+infrastructure powered by the fastest DePIN blockchain in the world.
+(BUTTON)
+Get started
+XNET: Making a Difference in Mobile
+Problem:
+Legacy telecom networks are straining under growing data demand.
+Building 5G infrastructure is costly and slow, leading to higher prices
+and coverage gaps in rural and urban areas. Major mobile carriers (MNOs
+& MVNOs) cannot keep up the pace, leaving their customers unsatisfied
+and underserved.
+Solution:
+XNET’s network delivers seamless Hotspot 2.0 WiFi offload that
+transforms modern connectivity. Our network bypasses the limits of
+traditional systems by providing scalable, high-capacity data
+transmission where legacy networks fail. This approach ensures fast,
+secure, and cost-effective connectivity for carriers and their
+customers.
+Ecosystem:
+Partnered with the largest U.S. mobile carrier, XNET is aggressively
+expanding its network by onboarding additional MNOs and MVNOs
+domestically and internationally. Carriers offload data demand via our
+Access Points, while deployers earn passive income and are rewarded for
+building the XNET network.
+Innovation:
+XNET leverages Solana to decentralize its network and reward
+contributors. This method eliminates single points of failure and
+delivers reliable connectivity at a lower cost than traditional
+solutions. By merging blockchain with enterprise-grade WiFi hardware,
+XNET drives cellular networks to operate at peak efficiency, delivering
+the connectivity everyone deserves.
+© 2025 XNET Inc. All rights reserved.
+Privacy PolicyTerms Of UseTerms of Service
