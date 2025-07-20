@@ -10,6 +10,15 @@ service TSMService {
   rpc ListSessions (ListSessionsRequest) returns (ListSessionsResponse);
   rpc SwitchSession (SwitchSessionRequest) returns (SwitchSessionResponse);
   rpc GetSessionDetails (GetSessionDetailsRequest) returns (GetSessionDetailsResponse);
+  rpc EncryptedSearch(EncryptedSearchRequest) returns (SearchResponse);
+}
+
+message EncryptedSearchRequest {
+  bytes encrypted_query = 1;
+}
+
+message SearchResponse {
+  repeated string session_locators = 1;
 }
 
 message ListSessionsRequest {

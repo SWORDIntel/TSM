@@ -1,5 +1,7 @@
 import sys
 import os
+import pickle
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mock_server')))
 
 import grpc
@@ -8,6 +10,7 @@ import TSMService_pb2_grpc
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Static
 from yubikey import YubiKeyManager
+from homomorphic_search import HomomorphicSearchPrototype
 
 class SessionList(Static):
     """A widget to display a list of sessions."""
@@ -29,6 +32,7 @@ class TSMDesktop(App):
         ("s", "switch_session", "Switch Session"),
         ("i", "session_details", "Session Details"),
         ("p", "provision_yubikey", "Provision YubiKey"),
+        ("f", "search", "Search"),
         ("q", "quit", "Quit"),
     ]
 
@@ -114,6 +118,23 @@ class TSMDesktop(App):
     def action_toggle_dark(self) -> None:
         """An action to toggle dark mode."""
         self.dark = not self.dark
+
+    def action_search(self) -> None:
+        """Performs an encrypted search."""
+        search_term = 3  # Hardcoded for prototype
+        search_prototype = HomomorphicSearchPrototype()
+        encrypted_query = search_prototype.generate_encrypted_query(search_term)
+        serialized_query = pickle.dumps(encrypted_query)
+
+        request = TSMService_pb2.EncryptedSearchRequest(encrypted_query=serialized_query)
+        try:
+            response = self.stub.EncryptedSearch(request)
+            if response.session_locators:
+                self.query_one(LogViewer).update(f"Search results: {response.session_locators}")
+            else:
+                self.query_one(LogViewer).update("No matching sessions found.")
+        except grpc.RpcError as e:
+            self.query_one(LogViewer).update(f"Error: {e.details()}")
 
 
 class VirtualSessionContainer:

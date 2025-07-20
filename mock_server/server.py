@@ -1,11 +1,24 @@
 import grpc
 from concurrent import futures
 import time
+import pickle
 
 import TSMService_pb2
 import TSMService_pb2_grpc
+from homomorphic_search import HomomorphicSearchPrototype
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
+    def __init__(self):
+        self.search_prototype = HomomorphicSearchPrototype()
+        self.plain_database = {
+            "session_alpha": 1,
+            "session_bravo": 2,
+            "session_charlie": 3,
+            "session_delta": 4,
+            "session_echo": 5
+        }
+        self.encrypted_database = self.search_prototype.generate_encrypted_database(self.plain_database)
+
     def ListSessions(self, request, context):
         sessions = []
         for i in range(5):
@@ -33,6 +46,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             is_encrypted=True
         )
         return TSMService_pb2.GetSessionDetailsResponse(session=session)
+
+    def EncryptedSearch(self, request, context):
+        encrypted_query = pickle.loads(request.encrypted_query)
+        matching_key = self.search_prototype.execute_search(encrypted_query, self.encrypted_database)
+        if matching_key:
+            return TSMService_pb2.SearchResponse(session_locators=[matching_key])
+        else:
+            return TSMService_pb2.SearchResponse(session_locators=[])
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
