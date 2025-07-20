@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">TSM</string>
+    <string name="settings">Settings</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="remote_wipe">Remote Wipe</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="action_cannot_be_undone">This action cannot be undone.</string>
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="session_details">Session Details</string>
 </resources>
