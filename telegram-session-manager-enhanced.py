@@ -62,6 +62,7 @@ from rich.logging import RichHandler
 from rich.progress import Progress, SpinnerColumn, BarColumn, TimeRemainingColumn, TransferSpeedColumn
 from rich.table import Table
 from rich.panel import Panel
+from tsm_ai_security import SessionSecurityAI, SecurityReport
 
 # ---------------------------------------------------------------------------#
 #  Configuration & Constants
@@ -546,7 +547,8 @@ class TelegramSessionManager:
             task = progress.add_task("[cyan]Backing up session...", total=100)
             
             def update_progress(copied, total):
-                progress.update(task, completed=(copied / total) * 100)
+                if total > 0:
+                    progress.update(task, completed=(copied / total) * 100)
             
             # Perform parallel copy
             metrics = self.file_ops.parallel_copy(
@@ -908,6 +910,10 @@ def main(argv: List[str] | None = None) -> None:
     import_parser = subparsers.add_parser('import', help='Import session from archive')
     import_parser.add_argument('archive', type=Path, help='Archive to import')
     import_parser.add_argument('--name', help='Custom name for imported session')
+
+    # AI Security Analysis
+    ai_parser = subparsers.add_parser('analyze', help='Analyze a session with AI')
+    ai_parser.add_argument('session', help='Session name or number to analyze')
     
     # Global options
     parser.add_argument('--config', type=Path, help='Configuration file')
@@ -988,7 +994,53 @@ def main(argv: List[str] | None = None) -> None:
                 console.print(f"[green]✓ Session imported successfully[/green]")
             else:
                 sys.exit(1)
-    
+
+        elif args.command == 'analyze':
+            sessions = manager.find_sessions()
+
+            # Handle numeric input
+            if args.session.isdigit():
+                idx = int(args.session) - 1
+                if 0 <= idx < len(sessions):
+                    session_name = sessions[idx].name
+                else:
+                    log.error("Invalid session number")
+                    sys.exit(1)
+            else:
+                session_name = args.session
+
+            metadata = manager.db.get_session(session_name)
+            if not metadata:
+                log.error(f"Session '{session_name}' not found")
+                sys.exit(1)
+
+            # Mock session data for analysis
+            mock_data = {
+                "last_login_time": "23:30",
+                "message_frequency_per_hour": 150,
+                "api_calls_last_24h": 50,
+            }
+
+            ai = SessionSecurityAI()
+            report = ai.analyze_session(mock_data)
+
+            from rich.text import Text
+            panel_content = Text()
+            panel_content.append(f"AI Security Report for {session_name}", style="bold")
+            panel_content.append("\n\n")
+            panel_content.append("Risk Score: ")
+            panel_content.append(f"{report.risk_score:.2f}", style="bold red" if report.risk_score > 0.7 else "bold green")
+            panel_content.append("\n\n")
+            panel_content.append("Threats Identified:\n", style="bold")
+            for t in report.threats:
+                panel_content.append(f"- {t}\n")
+            panel_content.append("\n")
+            panel_content.append("Recommendations:\n", style="bold")
+            for r in report.recommendations:
+                panel_content.append(f"- {r}\n")
+
+            console.print(Panel(panel_content))
+
     finally:
         manager.cleanup()
 
