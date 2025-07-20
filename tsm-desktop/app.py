@@ -7,6 +7,7 @@ import TSMService_pb2
 import TSMService_pb2_grpc
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Static
+from yubikey import YubiKeyManager
 
 class SessionList(Static):
     """A widget to display a list of sessions."""
@@ -27,6 +28,7 @@ class TSMDesktop(App):
         ("d", "toggle_dark", "Toggle dark mode"),
         ("s", "switch_session", "Switch Session"),
         ("i", "session_details", "Session Details"),
+        ("p", "provision_yubikey", "Provision YubiKey"),
         ("q", "quit", "Quit"),
     ]
 
@@ -40,9 +42,20 @@ class TSMDesktop(App):
 
     def on_mount(self) -> None:
         """Called when the app is mounted."""
-        self.channel = grpc.insecure_channel('localhost:50051')
-        self.stub = TSMService_pb2_grpc.TSMServiceStub(self.channel)
-        self.list_sessions()
+        self.yubikey_manager = YubiKeyManager()
+        if self.yubikey_manager.detect_yubikey():
+            if self.yubikey_manager.authenticate():
+                self.channel = grpc.insecure_channel('localhost:50051')
+                self.stub = TSMService_pb2_grpc.TSMServiceStub(self.channel)
+                self.list_sessions()
+            else:
+                self.query_one(SessionList).update("YubiKey authentication failed.")
+                self.exit()
+        else:
+            # Fallback to existing password-based mechanism (not implemented yet)
+            self.channel = grpc.insecure_channel('localhost:50051')
+            self.stub = TSMService_pb2_grpc.TSMServiceStub(self.channel)
+            self.list_sessions()
 
     def list_sessions(self) -> None:
         """List the sessions."""
@@ -89,6 +102,14 @@ class TSMDesktop(App):
                 self.query_one(LogViewer).update(details)
             except grpc.RpcError as e:
                 self.query_one(LogViewer).update(f"Error: {e.details()}")
+
+    def action_provision_yubikey(self) -> None:
+        """Provisions the YubiKey."""
+        if self.yubikey_manager.detect_yubikey():
+            self.yubikey_manager.setup_challenge_response()
+            self.query_one(StatusBar).update("YubiKey provisioned.")
+        else:
+            self.query_one(StatusBar).update("No YubiKey detected.")
 
     def action_toggle_dark(self) -> None:
         """An action to toggle dark mode."""

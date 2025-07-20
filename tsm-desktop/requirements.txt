@@ -1,3 +1,4 @@
 textual
 grpcio
 grpcio-tools
+yubikey-manager
