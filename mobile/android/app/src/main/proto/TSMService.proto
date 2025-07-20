@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.tsm.mobile.proto";
+option java_outer_classname = "TSMServiceProto";
+
+package tsm;
+
+service TSMService {
+  rpc ListSessions (ListSessionsRequest) returns (ListSessionsResponse);
+  rpc SwitchSession (SwitchSessionRequest) returns (SwitchSessionResponse);
+  rpc GetSessionDetails (GetSessionDetailsRequest) returns (GetSessionDetailsResponse);
+}
+
+message ListSessionsRequest {
+  string user_id = 1;
+}
+
+message ListSessionsResponse {
+  repeated Session sessions = 1;
+}
+
+message Session {
+  string id = 1;
+  string name = 2;
+  int64 creation_date = 3;
+  int64 last_used_date = 4;
+  int64 size = 5;
+  bool is_encrypted = 6;
+}
+
+message SwitchSessionRequest {
+  string session_id = 1;
+}
+
+message SwitchSessionResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetSessionDetailsRequest {
+    string session_id = 1;
+}
+
+message GetSessionDetailsResponse {
+    Session session = 1;
+}
