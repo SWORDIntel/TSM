@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSM Mobile Integration Architecture</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 40px;
+        }
+        
+        .architecture-diagram {
+            background: #111;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+            min-height: 800px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .component {
+            position: absolute;
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .component:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            z-index: 10;
+        }
+        
+        .component h3 {
+            margin: 0 0 10px 0;
+            color: #00ff00;
+            font-size: 16px;
+        }
+        
+        .component p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #00cc00;
+        }
+        
+        .desktop {
+            width: 200px;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #001a00;
+        }
+        
+        .mobile-ios {
+            width: 180px;
+            top: 300px;
+            left: 150px;
+        }
+        
+        .mobile-android {
+            width: 180px;
+            top: 300px;
+            right: 150px;
+        }
+        
+        .sync-server {
+            width: 160px;
+            top: 500px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a0000;
+            border-color: #ff0000;
+        }
+        
+        .sync-server h3 {
+            color: #ff0000;
+        }
+        
+        .security-module {
+            width: 220px;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #001a1a;
+            border-color: #00ffff;
+        }
+        
+        .security-module h3 {
+            color: #00ffff;
+        }
+        
+        .connection {
+            position: absolute;
+            background: none;
+            z-index: 1;
+        }
+        
+        .connection-line {
+            stroke: #00ff00;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5, 5;
+            animation: dash 0.5s linear infinite;
+        }
+        
+        .connection-line.secure {
+            stroke: #00ffff;
+            stroke-width: 3;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+        
+        .protocol-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #0a0a0a;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        
+        .protocol-info h4 {
+            color: #00ff00;
+            margin: 0 0 10px 0;
+        }
+        
+        .protocol-info ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #00cc00;
+            font-size: 12px;
+        }
+        
+        .flow-diagram {
+            margin-top: 40px;
+            background: #111;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        
+        .flow-step {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            padding-left: 50px;
+        }
+        
+        .flow-step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 25px;
+            height: 25px;
+            background: #00ff00;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .tech-card {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .tech-card h3 {
+            color: #00ff00;
+            margin: 0 0 15px 0;
+        }
+        
+        .tech-card ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #00cc00;
+        }
+        
+        @media (max-width: 768px) {
+            .architecture-diagram {
+                min-height: 1000px;
+            }
+            
+            .mobile-ios {
+                left: 50%;
+                transform: translateX(-50%);
+                top: 250px;
+            }
+            
+            .mobile-android {
+                left: 50%;
+                transform: translateX(-50%);
+                top: 450px;
+                right: auto;
+            }
+            
+            .sync-server {
+                top: 650px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TSM MOBILE INTEGRATION ARCHITECTURE</h1>
+        
+        <div class="architecture-diagram">
+            <!-- Desktop Component -->
+            <div class="component desktop">
+                <h3>Desktop TSM</h3>
+                <p>Primary Session Manager</p>
+                <p>• Full session control</p>
+                <p>• Encrypted storage</p>
+                <p>• API server</p>
+            </div>
+            
+            <!-- iOS App -->
+            <div class="component mobile-ios">
+                <h3>iOS Companion</h3>
+                <p>• Face ID auth</p>
+                <p>• Secure Enclave</p>
+                <p>• SwiftUI interface</p>
+                <p>• Local sync cache</p>
+            </div>
+            
+            <!-- Android App -->
+            <div class="component mobile-android">
+                <h3>Android Companion</h3>
+                <p>• Fingerprint auth</p>
+                <p>• Keystore backed</p>
+                <p>• Jetpack Compose</p>
+                <p>• Encrypted storage</p>
+            </div>
+            
+            <!-- Sync Server -->
+            <div class="component sync-server">
+                <h3>P2P Relay</h3>
+                <p>• Local network first</p>
+                <p>• Optional cloud relay</p>
+                <p>• E2E encrypted</p>
+            </div>
+            
+            <!-- Security Module -->
+            <div class="component security-module">
+                <h3>Security Layer</h3>
+                <p>• TLS 1.3 + Certificate Pinning</p>
+                <p>• PAKE authentication</p>
+                <p>• Forward secrecy</p>
+                <p>• Zero-knowledge proofs</p>
+            </div>
+            
+            <!-- Connection Lines -->
+            <svg class="connection" width="100%" height="100%">
+                <!-- Desktop to iOS -->
+                <path class="connection-line secure" d="M 500 170 Q 350 250 240 300" />
+                <!-- Desktop to Android -->
+                <path class="connection-line secure" d="M 500 170 Q 650 250 760 300" />
+                <!-- iOS to Sync -->
+                <path class="connection-line" d="M 240 380 Q 350 450 500 500" />
+                <!-- Android to Sync -->
+                <path class="connection-line" d="M 760 380 Q 650 450 500 500" />
+                <!-- Sync to Security -->
+                <path class="connection-line secure" d="M 500 580 L 500 650" />
+            </svg>
+            
+            <div class="protocol-info">
+                <h4>Communication Protocols</h4>
+                <ul>
+                    <li><strong>Primary:</strong> gRPC over mTLS for desktop-mobile communication</li>
+                    <li><strong>Fallback:</strong> REST API with JWT + HMAC signing</li>
+                    <li><strong>P2P:</strong> Custom protocol over WebRTC data channels</li>
+                    <li><strong>Encryption:</strong> XChaCha20-Poly1305 with Argon2id KDF</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="flow-diagram">
+            <h2 style="color: #00ff00; text-align: center;">Mobile Session Switch Flow</h2>
+            
+            <div class="flow-step" data-step="1">
+                <h4>Biometric Authentication</h4>
+                <p>User authenticates via Face ID / Touch ID / Fingerprint</p>
+            </div>
+            
+            <div class="flow-step" data-step="2">
+                <h4>Secure Channel Establishment</h4>
+                <p>PAKE handshake → Noise Protocol → Encrypted channel</p>
+            </div>
+            
+            <div class="flow-step" data-step="3">
+                <h4>Session List Sync</h4>
+                <p>Fetch available sessions with metadata (encrypted)</p>
+            </div>
+            
+            <div class="flow-step" data-step="4">
+                <h4>Switch Request</h4>
+                <p>Send authenticated switch command with session ID</p>
+            </div>
+            
+            <div class="flow-step" data-step="5">
+                <h4>Desktop Execution</h4>
+                <p>Desktop performs backup → switch → confirmation</p>
+            </div>
+            
+            <div class="flow-step" data-step="6">
+                <h4>Mobile Notification</h4>
+                <p>Success/failure notification with session details</p>
+            </div>
+        </div>
+        
+        <div class="tech-stack">
+            <div class="tech-card">
+                <h3>iOS Stack</h3>
+                <ul>
+                    <li>Swift 5.9 + SwiftUI</li>
+                    <li>CryptoKit + Security.framework</li>
+                    <li>Combine for reactive updates</li>
+                    <li>Core Data with encryption</li>
+                    <li>Network.framework for P2P</li>
+                    <li>LocalAuthentication.framework</li>
+                </ul>
+            </div>
+            
+            <div class="tech-card">
+                <h3>Android Stack</h3>
+                <ul>
+                    <li>Kotlin + Jetpack Compose</li>
+                    <li>Tink crypto library</li>
+                    <li>Coroutines + Flow</li>
+                    <li>Room with SQLCipher</li>
+                    <li>Nearby Connections API</li>
+                    <li>BiometricPrompt API</li>
+                </ul>
+            </div>
+            
+            <div class="tech-card">
+                <h3>Security Stack</h3>
+                <ul>
+                    <li>libsodium for crypto primitives</li>
+                    <li>Noise Protocol Framework</li>
+                    <li>OPAQUE for PAKE</li>
+                    <li>WireGuard for VPN tunnel</li>
+                    <li>Certificate Transparency</li>
+                    <li>Hardware-backed keystore</li>
+                </ul>
+            </div>
+            
+            <div class="tech-card">
+                <h3>Network Stack</h3>
+                <ul>
+                    <li>gRPC with Protocol Buffers</li>
+                    <li>mDNS for discovery</li>
+                    <li>WebRTC for P2P</li>
+                    <li>QUIC for transport</li>
+                    <li>Tor/I2P optional routing</li>
+                    <li>Custom framing protocol</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add interactive hover effects
+        document.querySelectorAll('.component').forEach(comp => {
+            comp.addEventListener('click', function() {
+                this.style.animation = 'pulse 0.5s ease';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 500);
+            });
+        });
+        
+        // Pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSM Android Security & Operation Flow</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0f0f0f;
+            color: #00ff00;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            margin-bottom: 40px;
+            font-size: 2em;
+        }
+        
+        .flow-section {
+            margin-bottom: 60px;
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+        
+        .section-title {
+            color: #00ff00;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+        }
+        
+        .flow-container {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 20px 0;
+            align-items: center;
+        }
+        
+        .flow-step {
+            min-width: 200px;
+            background: #2a2a2a;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.5);
+            background: #3a3a3a;
+        }
+        
+        .flow-step h3 {
+            color: #00ff00;
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .flow-step p {
+            color: #aaa;
+            font-size: 0.9em;
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .arrow {
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 2px;
+            background: #00ff00;
+        }
+        
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -5px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid #00ff00;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        
+        .security-layers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .layer-card {
+            background: #2a2a2a;
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .layer-card:nth-child(1) { border-color: #ff3366; }
+        .layer-card:nth-child(2) { border-color: #00ccff; }
+        .layer-card:nth-child(3) { border-color: #ffcc00; }
+        .layer-card:nth-child(4) { border-color: #cc00ff; }
+        
+        .layer-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        .layer-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .layer-card:nth-child(1) .layer-title { color: #ff3366; }
+        .layer-card:nth-child(2) .layer-title { color: #00ccff; }
+        .layer-card:nth-child(3) .layer-title { color: #ffcc00; }
+        .layer-card:nth-child(4) .layer-title { color: #cc00ff; }
+        
+        .layer-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .layer-features li {
+            padding: 5px 0;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+        
+        .layer-features li::before {
+            content: '▸ ';
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .architecture-visual {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+            min-height: 400px;
+        }
+        
+        .device-box {
+            width: 200px;
+            height: 300px;
+            background: #2a2a2a;
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        .device-box h3 {
+            color: #00ff00;
+            margin-bottom: 20px;
+        }
+        
+        .component-list {
+            text-align: left;
+        }
+        
+        .component-item {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 0.85em;
+            color: #aaa;
+            transition: all 0.2s ease;
+        }
+        
+        .component-item:hover {
+            background: #2a2a2a;
+            color: #00ff00;
+            transform: translateX(5px);
+        }
+        
+        .connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .data-flow {
+            stroke: #00ff00;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 10, 5;
+            animation: flow 2s linear infinite;
+        }
+        
+        @keyframes flow {
+            to {
+                stroke-dashoffset: -15;
+            }
+        }
+        
+        .code-snippet {
+            background: #0a0a0a;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            color: #00ff00;
+        }
+        
+        .highlight {
+            color: #ffcc00;
+        }
+        
+        .warning-box {
+            background: #3a1a1a;
+            border: 2px solid #ff3366;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .warning-box h4 {
+            color: #ff3366;
+            margin: 0 0 10px 0;
+        }
+        
+        .warning-box p {
+            color: #ccc;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .flow-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .flow-step {
+                min-width: 100%;
+            }
+            
+            .arrow {
+                display: none;
+            }
+            
+            .architecture-visual {
+                flex-direction: column;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TSM ANDROID SECURITY & OPERATION FLOW</h1>
+        
+        <!-- App Launch Flow -->
+        <div class="flow-section">
+            <h2 class="section-title">📱 App Launch & Authentication Flow</h2>
+            <div class="flow-container">
+                <div class="flow-step">
+                    <h3>App Start</h3>
+                    <p>Check app integrity<br>Verify signatures<br>Load encryption keys</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Biometric Prompt</h3>
+                    <p>Fingerprint/Face<br>Device credential<br>StrongBox backed</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Key Unlock</h3>
+                    <p>Android Keystore<br>Hardware-backed<br>User authenticated</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Server Connect</h3>
+                    <p>Certificate pinning<br>mTLS handshake<br>OPAQUE auth</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Session Ready</h3>
+                    <p>Encrypted channel<br>Real-time sync<br>Ready for ops</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Layers -->
+        <div class="flow-section">
+            <h2 class="section-title">🔐 Android Security Layers</h2>
+            <div class="security-layers">
+                <div class="layer-card">
+                    <div class="layer-title">App Layer Security</div>
+                    <ul class="layer-features">
+                        <li>ProGuard/R8 obfuscation</li>
+                        <li>Anti-tampering checks</li>
+                        <li>Certificate pinning</li>
+                        <li>Runtime app protection</li>
+                        <li>Integrity verification</li>
+                    </ul>
+                </div>
+                
+                <div class="layer-card">
+                    <div class="layer-title">Data Protection</div>
+                    <ul class="layer-features">
+                        <li>Android Keystore encryption</li>
+                        <li>EncryptedSharedPreferences</li>
+                        <li>SQLCipher for database</li>
+                        <li>Tink AEAD encryption</li>
+                        <li>Hardware-backed keys</li>
+                    </ul>
+                </div>
+                
+                <div class="layer-card">
+                    <div class="layer-title">Network Security</div>
+                    <ul class="layer-features">
+                        <li>TLS 1.3 enforcement</li>
+                        <li>Certificate transparency</li>
+                        <li>Network security config</li>
+                        <li>OkHttp interceptors</li>
+                        <li>gRPC secure channels</li>
+                    </ul>
+                </div>
+                
+                <div class="layer-card">
+                    <div class="layer-title">Device Security</div>
+                    <ul class="layer-features">
+                        <li>Biometric authentication</li>
+                        <li>StrongBox when available</li>
+                        <li>Secure lock screen required</li>
+                        <li>USB debugging detection</li>
+                        <li>Root detection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Architecture Overview -->
+        <div class="flow-section">
+            <h2 class="section-title">🏗️ Android App Architecture</h2>
+            <div class="architecture-visual">
+                <div class="device-box">
+                    <h3>Android Device</h3>
+                    <div class="component-list">
+                        <div class="component-item">Jetpack Compose UI</div>
+                        <div class="component-item">Hilt DI</div>
+                        <div class="component-item">ViewModel + StateFlow</div>
+                        <div class="component-item">Room Database</div>
+                        <div class="component-item">WorkManager</div>
+                        <div class="component-item">DataStore Prefs</div>
+                        <div class="component-item">gRPC Client</div>
+                    </div>
+                </div>
+                
+                <svg class="connection-lines" viewBox="0 0 800 400">
+                    <path class="data-flow" d="M 240 150 Q 400 150 560 150" />
+                    <path class="data-flow" d="M 560 180 Q 400 180 240 180" />
+                </svg>
+                
+                <div class="device-box">
+                    <h3>Desktop TSM</h3>
+                    <div class="component-list">
+                        <div class="component-item">gRPC Server</div>
+                        <div class="component-item">Session Manager</div>
+                        <div class="component-item">SQLite Database</div>
+                        <div class="component-item">Crypto Module</div>
+                        <div class="component-item">File Operations</div>
+                        <div class="component-item">Audit Logger</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Android Features -->
+        <div class="flow-section">
+            <h2 class="section-title">🚀 Key Android-Specific Features</h2>
+            
+            <div class="code-snippet">
+                <span class="highlight">// Android Keystore Integration</span>
+                val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+                    keyAlias,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                ).apply {
+                    setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    setKeySize(256)
+                    <span class="highlight">setUserAuthenticationRequired(true)</span>
+                    <span class="highlight">setIsStrongBoxBacked(true)</span> // Hardware security module
+                    setUnlockedDeviceRequired(true)
+                }.build()
+            </div>
+            
+            <div class="warning-box">
+                <h4>⚠️ Android Security Considerations</h4>
+                <p>• Always use hardware-backed keystore when available<br>
+                   • Implement root detection for sensitive operations<br>
+                   • Enable certificate pinning in network_security_config.xml<br>
+                   • Use ProGuard/R8 rules to protect sensitive code<br>
+                   • Implement anti-debugging measures for release builds</p>
+            </div>
+        </div>
+        
+        <!-- Operation Flows -->
+        <div class="flow-section">
+            <h2 class="section-title">⚡ Session Switch Operation</h2>
+            <div class="flow-container">
+                <div class="flow-step">
+                    <h3>User Tap</h3>
+                    <p>Select session<br>Trigger switch<br>Show loading</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Verify Auth</h3>
+                    <p>Check timeout<br>Re-auth if needed<br>Get session key</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Encrypt Request</h3>
+                    <p>ChaCha20-Poly1305<br>Sign with HMAC<br>Add nonce</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>gRPC Call</h3>
+                    <p>Send over mTLS<br>Await response<br>Handle errors</p>
+                    <div class="arrow"></div>
+                </div>
+                
+                <div class="flow-step">
+                    <h3>Update UI</h3>
+                    <p>Decrypt response<br>Update state<br>Show notification</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Background Services -->
+        <div class="flow-section">
+            <h2 class="section-title">🔄 Background Services</h2>
+            <div class="security-layers">
+                <div class="layer-card">
+                    <div class="layer-title" style="color: #00ff00;">WorkManager Tasks</div>
+                    <ul class="layer-features">
+                        <li>Session sync every 15 min</li>
+                        <li>Security status checks</li>
+                        <li>Certificate renewal</li>
+                        <li>Cleanup old logs</li>
+                        <li>Connection monitoring</li>
+                    </ul>
+                </div>
+                
+                <div class="layer-card">
+                    <div class="layer-title" style="color: #00ccff;">Push Notifications</div>
+                    <ul class="layer-features">
+                        <li>FCM integration</li>
+                        <li>End-to-end encrypted</li>
+                        <li>Silent data messages</li>
+                        <li>High priority alerts</li>
+                        <li>Local notifications</li>
+                    </ul>
+                </div>
+                
+                <div class="layer-card">
+                    <div class="layer-title" style="color: #ffcc00;">State Management</div>
+                    <ul class="layer-features">
+                        <li>StateFlow for UI state</li>
+                        <li>Room for offline cache</li>
+                        <li>DataStore for prefs</li>
+                        <li>Encrypted storage</li>
+                        <li>Memory-only sensitive data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add interactive animations
+        document.querySelectorAll('.flow-step, .layer-card, .component-item').forEach(element => {
+            element.addEventListener('mouseover', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+        
+        // Animate security layers on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.5s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            });
+        });
+        
+        document.querySelectorAll('.layer-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
