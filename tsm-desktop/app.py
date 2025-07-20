@@ -114,3 +114,42 @@ class TSMDesktop(App):
     def action_toggle_dark(self) -> None:
         """An action to toggle dark mode."""
         self.dark = not self.dark
+
+
+class VirtualSessionContainer:
+    """A class to manage virtual sessions in Docker containers."""
+
+    def __init__(self, docker_client):
+        """Initializes the VirtualSessionContainer."""
+        self.client = docker_client
+
+    def build_image(self, dockerfile_path, image_tag):
+        """Builds a Docker image from a Dockerfile."""
+        with open(dockerfile_path, 'rb') as dockerfile:
+            return self.client.images.build(fileobj=dockerfile, tag=image_tag, rm=True)
+
+    def run_container(self, image_tag, session_dir, proxy_server=None):
+        """Runs a new container from an image."""
+        environment = {}
+        if proxy_server:
+            environment['HTTP_PROXY'] = proxy_server
+            environment['HTTPS_PROXY'] = proxy_server
+
+        return self.client.containers.run(
+            image_tag,
+            volumes={session_dir: {'bind': '/home/tsmuser/session', 'mode': 'rw'}},
+            environment=environment,
+            detach=True
+        )
+
+    def stop_container(self, container):
+        """Stops a container."""
+        container.stop()
+
+    def destroy_container(self, container):
+        """Destroys a container."""
+        container.remove()
+
+    def get_logs(self, container):
+        """Gets the logs of a container."""
+        return container.logs().decode('utf-8')
