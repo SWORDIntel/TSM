@@ -11,6 +11,14 @@ service TSMService {
   rpc EncryptedSearch(EncryptedSearchRequest) returns (SearchResponse);
 }
 
+message EncryptedSearchRequest {
+  bytes encrypted_query = 1;
+}
+
+message SearchResponse {
+  repeated string session_locators = 1;
+}
+
 message ListSessionsRequest {
   string user_id = 1;
 }
@@ -43,12 +51,4 @@ message GetSessionDetailsRequest {
 
 message GetSessionDetailsResponse {
     Session session = 1;
-}
-
-message EncryptedSearchRequest {
-  bytes encrypted_query = 1;
-}
-
-message SearchResponse {
-  repeated string session_locators = 1;
 }

@@ -9,7 +9,7 @@ class HomomorphicSearchPrototype:
         """
         Initializes the prototype by generating a Paillier keypair.
         """
-        self.public_key, self.private_key = paillier.generate_paillier_keypair(n_length=256)
+        self.public_key, self.private_key = paillier.generate_paillier_keypair()
 
     def generate_encrypted_database(self, plain_database):
         """
