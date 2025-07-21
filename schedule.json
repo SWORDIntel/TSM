@@ -1,0 +1,4 @@
+[
+  { "session_id": "session_delta_report", "time": "08:00", "day": "weekday" },
+  { "session_id": "session_omega_personal", "time": "18:00", "day": "all" }
+]
