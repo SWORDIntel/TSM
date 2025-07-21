@@ -49,6 +49,11 @@ class TSMServiceStub(object):
                 request_serializer=TSMService__pb2.GetSessionDetailsRequest.SerializeToString,
                 response_deserializer=TSMService__pb2.GetSessionDetailsResponse.FromString,
                 _registered_method=True)
+        self.EncryptedSearch = channel.unary_unary(
+                '/tsm.TSMService/EncryptedSearch',
+                request_serializer=TSMService__pb2.EncryptedSearchRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.SearchResponse.FromString,
+                _registered_method=True)
 
 
 class TSMServiceServicer(object):
@@ -72,6 +77,12 @@ class TSMServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def EncryptedSearch(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_TSMServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -89,6 +100,11 @@ def add_TSMServiceServicer_to_server(servicer, server):
                     servicer.GetSessionDetails,
                     request_deserializer=TSMService__pb2.GetSessionDetailsRequest.FromString,
                     response_serializer=TSMService__pb2.GetSessionDetailsResponse.SerializeToString,
+            ),
+            'EncryptedSearch': grpc.unary_unary_rpc_method_handler(
+                    servicer.EncryptedSearch,
+                    request_deserializer=TSMService__pb2.EncryptedSearchRequest.FromString,
+                    response_serializer=TSMService__pb2.SearchResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -172,6 +188,33 @@ class TSMService(object):
             '/tsm.TSMService/GetSessionDetails',
             TSMService__pb2.GetSessionDetailsRequest.SerializeToString,
             TSMService__pb2.GetSessionDetailsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def EncryptedSearch(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/EncryptedSearch',
+            TSMService__pb2.EncryptedSearchRequest.SerializeToString,
+            TSMService__pb2.SearchResponse.FromString,
             options,
             channel_credentials,
             insecure,

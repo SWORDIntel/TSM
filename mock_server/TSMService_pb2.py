@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10TSMService.proto\x12\x03tsm\"&\n\x13ListSessionsRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"6\n\x14ListSessionsResponse\x12\x1e\n\x08sessions\x18\x01 \x03(\x0b\x32\x0c.tsm.Session\"v\n\x07Session\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\x03\x12\x16\n\x0elast_used_date\x18\x04 \x01(\x03\x12\x0c\n\x04size\x18\x05 \x01(\x03\x12\x14\n\x0cis_encrypted\x18\x06 \x01(\x08\"*\n\x14SwitchSessionRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"9\n\x15SwitchSessionResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\".\n\x18GetSessionDetailsRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\":\n\x19GetSessionDetailsResponse\x12\x1d\n\x07session\x18\x01 \x01(\x0b\x32\x0c.tsm.Session2\xed\x01\n\nTSMService\x12\x43\n\x0cListSessions\x12\x18.tsm.ListSessionsRequest\x1a\x19.tsm.ListSessionsResponse\x12\x46\n\rSwitchSession\x12\x19.tsm.SwitchSessionRequest\x1a\x1a.tsm.SwitchSessionResponse\x12R\n\x11GetSessionDetails\x12\x1d.tsm.GetSessionDetailsRequest\x1a\x1e.tsm.GetSessionDetailsResponseB)\n\x14\x63om.tsm.mobile.protoB\x0fTSMServiceProtoP\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10TSMService.proto\x12\x03tsm\"&\n\x13ListSessionsRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"6\n\x14ListSessionsResponse\x12\x1e\n\x08sessions\x18\x01 \x03(\x0b\x32\x0c.tsm.Session\"v\n\x07Session\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\x03\x12\x16\n\x0elast_used_date\x18\x04 \x01(\x03\x12\x0c\n\x04size\x18\x05 \x01(\x03\x12\x14\n\x0cis_encrypted\x18\x06 \x01(\x08\"*\n\x14SwitchSessionRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"9\n\x15SwitchSessionResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\".\n\x18GetSessionDetailsRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\":\n\x19GetSessionDetailsResponse\x12\x1d\n\x07session\x18\x01 \x01(\x0b\x32\x0c.tsm.Session\"1\n\x16\x45ncryptedSearchRequest\x12\x17\n\x0f\x65ncrypted_query\x18\x01 \x01(\x0c\"*\n\x0eSearchResponse\x12\x18\n\x10session_locators\x18\x01 \x03(\t2\xb2\x02\n\nTSMService\x12\x43\n\x0cListSessions\x12\x18.tsm.ListSessionsRequest\x1a\x19.tsm.ListSessionsResponse\x12\x46\n\rSwitchSession\x12\x19.tsm.SwitchSessionRequest\x1a\x1a.tsm.SwitchSessionResponse\x12R\n\x11GetSessionDetails\x12\x1d.tsm.GetSessionDetailsRequest\x1a\x1e.tsm.GetSessionDetailsResponse\x12\x43\n\x0f\x45ncryptedSearch\x12\x1b.tsm.EncryptedSearchRequest\x1a\x13.tsm.SearchResponseB)\n\x14\x63om.tsm.mobile.protoB\x0fTSMServiceProtoP\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -46,6 +46,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_GETSESSIONDETAILSREQUEST']._serialized_end=390
   _globals['_GETSESSIONDETAILSRESPONSE']._serialized_start=392
   _globals['_GETSESSIONDETAILSRESPONSE']._serialized_end=450
-  _globals['_TSMSERVICE']._serialized_start=453
-  _globals['_TSMSERVICE']._serialized_end=690
+  _globals['_ENCRYPTEDSEARCHREQUEST']._serialized_start=452
+  _globals['_ENCRYPTEDSEARCHREQUEST']._serialized_end=501
+  _globals['_SEARCHRESPONSE']._serialized_start=503
+  _globals['_SEARCHRESPONSE']._serialized_end=545
+  _globals['_TSMSERVICE']._serialized_start=548
+  _globals['_TSMSERVICE']._serialized_end=854
 # @@protoc_insertion_point(module_scope)

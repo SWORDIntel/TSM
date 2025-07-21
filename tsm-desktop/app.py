@@ -1,6 +1,8 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mock_server')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 import grpc
 import TSMService_pb2
@@ -8,6 +10,8 @@ import TSMService_pb2_grpc
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Static
 from yubikey import YubiKeyManager
+from homomorphic_search import HomomorphicSearchPrototype
+from phe import paillier
 
 class SessionList(Static):
     """A widget to display a list of sessions."""
@@ -29,6 +33,7 @@ class TSMDesktop(App):
         ("s", "switch_session", "Switch Session"),
         ("i", "session_details", "Session Details"),
         ("p", "provision_yubikey", "Provision YubiKey"),
+        ("f", "search", "Search"),
         ("q", "quit", "Quit"),
     ]
 
@@ -114,6 +119,39 @@ class TSMDesktop(App):
     def action_toggle_dark(self) -> None:
         """An action to toggle dark mode."""
         self.dark = not self.dark
+
+    def action_search(self) -> None:
+        """Searches for a session."""
+        # In a real app, you'd prompt the user for a search term.
+        search_term = 3
+
+        # The public key would be fetched from the server in a real application.
+        # For this prototype, we'll just create a new keypair and assume the server has the private key.
+        public_key, _ = paillier.generate_paillier_keypair()
+
+        # Create a HomomorphicSearchPrototype instance
+        prototype = HomomorphicSearchPrototype()
+        prototype.public_key = public_key
+
+
+        # Generate an encrypted query
+        encrypted_query = prototype.generate_encrypted_query(search_term)
+
+        # The client sends the encrypted query as bytes, so we need to serialize it
+        # This is a bit of a hack for the prototype. In a real implementation,
+        # we would use a proper serialization format.
+        encrypted_query_bytes = encrypted_query.ciphertext().to_bytes(1024, 'big')
+
+
+        request = TSMService_pb2.EncryptedSearchRequest(encrypted_query=encrypted_query_bytes)
+        try:
+            response = self.stub.EncryptedSearch(request)
+            if response.session_locators:
+                self.query_one(LogViewer).update(f"Found matching session: {response.session_locators[0]}")
+            else:
+                self.query_one(LogViewer).update("No matching session found.")
+        except grpc.RpcError as e:
+            self.query_one(LogViewer).update(f"Error: {e.details()}")
 
 
 class VirtualSessionContainer:

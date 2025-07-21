@@ -4,6 +4,23 @@ import time
 
 import TSMService_pb2
 import TSMService_pb2_grpc
+from homomorphic_search import HomomorphicSearchPrototype
+from phe import paillier
+
+# Create an instance of the prototype
+prototype = HomomorphicSearchPrototype()
+
+# Create a sample database
+plain_database = {
+    "session_1": 1,
+    "session_2": 2,
+    "session_3": 3,
+    "session_4": 4,
+    "session_5": 5
+}
+
+# Encrypt the database
+encrypted_database = prototype.generate_encrypted_database(plain_database)
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     def ListSessions(self, request, context):
@@ -33,6 +50,25 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             is_encrypted=True
         )
         return TSMService_pb2.GetSessionDetailsResponse(session=session)
+
+    def EncryptedSearch(self, request, context):
+        try:
+            # The client sends the encrypted query as bytes, so we need to deserialize it
+            # The Paillier library doesn't have a direct deserialization method,
+            # so we need to reconstruct the EncryptedNumber object.
+            # This is a bit of a hack for the prototype. In a real implementation,
+            # we would use a proper serialization format.
+            encrypted_query_ciphertext = int.from_bytes(request.encrypted_query, 'big')
+            encrypted_query = paillier.EncryptedNumber(prototype.public_key, encrypted_query_ciphertext)
+
+            matching_key = prototype.execute_search(encrypted_query, encrypted_database)
+            if matching_key:
+                return TSMService_pb2.SearchResponse(session_locators=[matching_key])
+            else:
+                return TSMService_pb2.SearchResponse(session_locators=[])
+        except Exception as e:
+            print(f"Error during search: {e}")
+            return TSMService_pb2.SearchResponse(session_locators=[])
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
