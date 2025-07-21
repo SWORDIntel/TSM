@@ -86,7 +86,7 @@ class QuantumResistantCrypto:
         """
         if self.hybrid_mode:
             if not isinstance(ciphertext, tuple) or len(ciphertext) != 3:
-                raise ValueError("Invalid ciphertext format for hybrid mode.")
+                raise TypeError("Invalid ciphertext format for hybrid mode.")
             kyber_ciphertext, nonce, aes_ciphertext = ciphertext
             shared_secret = self.kyber_decapsulate(private_key, kyber_ciphertext)
             return b"decrypted_data"

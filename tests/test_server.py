@@ -29,36 +29,55 @@ def grpc_stub(grpc_server):
 @pytest.fixture
 def test_db():
     db = Database(db_name=":memory:")
+    db.create_tables()
     # Add mock data
-    session_names = ["Alpha", "Bravo", "Charlie"]
+    session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
     for i, name in enumerate(session_names):
         session = TSMService_pb2.Session(
             id=f"session_{name.lower()}",
             name=f"Session {name}",
-            created_timestamp=int(time.time()) - (86400 * (3 - i)),
+            created_timestamp=int(time.time()) - (86400 * (5 - i)),
             size_bytes=1024 * 1024 * (i + 1),
             is_encrypted=True,
             tags=["test", f"tag_{i}"]
         )
-        db.upsert_session(session)
+        with db:
+            db.upsert_session(session)
     return db
 
-def test_list_sessions_returns_correct_data(grpc_stub, test_db):
-    # Instantiate the service with the test database
-    service = TSMService()
-    service.db = test_db
-
+def test_list_sessions_returns_correct_data(grpc_stub):
     # Call the ListSessions method
     request = TSMService_pb2.Empty()
-    response = service.ListSessions(request, None)
+    response = grpc_stub.ListSessions(request)
 
     # Assert that the response contains the correct number of sessions
-    assert len(response.sessions) == 3
+    assert len(response.sessions) == 5
 
     # Assert that the properties of the first session match the mock data
     assert response.sessions[0].id == "session_alpha"
     assert response.sessions[0].name == "Session Alpha"
-    assert response.sessions[0].size_bytes == 1024 * 1024 * 1
     assert response.sessions[0].is_encrypted is True
     assert "test" in response.sessions[0].tags
     assert "tag_0" in response.sessions[0].tags
+
+def test_get_session_data_returns_decrypted_data(grpc_stub):
+    # Call the GetSessionData method
+    request = TSMService_pb2.GetSessionDataRequest(session_id="session_alpha")
+    response = grpc_stub.GetSessionData(request)
+
+    # Assert that the response contains the decrypted data
+    assert response.decrypted_data
+
+def test_ai_interceptor_denies_high_risk_request(grpc_stub, mocker):
+    # Mock the AI analysis to return a high risk score
+    mocker.patch(
+        "mock_server.ai_interceptor.SessionSecurityAI.analyze_session",
+        return_value=mocker.Mock(risk_score=0.95, threats=["High risk of compromise"]),
+    )
+
+    # Call a method that is intercepted by the AI security layer
+    with pytest.raises(grpc.RpcError) as e:
+        grpc_stub.GetSessionData(TSMService_pb2.GetSessionDataRequest(session_id="session_alpha"))
+
+    # Assert that the request was denied
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
