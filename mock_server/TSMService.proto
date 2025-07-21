@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package tsm;
+
+// The core service for managing TSM sessions
+service TSMService {
+  // Retrieves a list of all available sessions
+  rpc ListSessions(Empty) returns (SessionList);
+
+  // Activates a specific session
+  rpc SwitchSession(SwitchRequest) returns (SwitchResponse);
+
+  // Streams a backup of a specific session
+  rpc BackupSession(BackupRequest) returns (stream BackupChunk);
+
+  // Retrieves system performance and status metrics
+  rpc GetMetrics(Empty) returns (SystemMetrics);
+}
+
+// Represents an empty message
+message Empty {}
+
+// A single TSM session's metadata
+message Session {
+  string id = 1;
+  string name = 2;
+  int64 created_timestamp = 3;
+  int64 size_bytes = 4;
+  bool is_encrypted = 5;
+  repeated string tags = 6;
+}
+
+// A list of sessions
+message SessionList {
+  repeated Session sessions = 1;
+}
+
+// Request to switch to a new session
+message SwitchRequest {
+  string session_id = 1;
+}
+
+// Response from a session switch operation
+message SwitchResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request to back up a session
+message BackupRequest {
+  string session_id = 1;
+}
+
+// A chunk of a session backup file
+message BackupChunk {
+  bytes data = 1;
+}
+
+// System metrics
+message SystemMetrics {
+  float cpu_usage_percent = 1;
+  int64 memory_usage_bytes = 2;
+  int32 active_sessions = 3;
+}
