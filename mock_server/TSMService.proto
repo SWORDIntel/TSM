@@ -28,6 +28,12 @@ service TSMService {
   // Performs a search on encrypted data
   rpc EncryptedSearch(SearchRequest) returns (SearchResponse);
 
+  // Starts the ZK-proof authentication process
+  rpc StartZKAuthentication(ZKAuthenticationRequest) returns (ZKChallengeResponse);
+
+  // Verifies the client's ZK-proof
+  rpc VerifyZKProof(ZKProofRequest) returns (ZKProofResponse);
+
   // Streams a backup of a specific session
   rpc BackupSession(BackupRequest) returns (stream BackupChunk);
 
@@ -147,4 +153,25 @@ message SystemMetrics {
   float cpu_usage_percent = 1;
   int64 memory_usage_bytes = 2;
   int32 active_sessions = 3;
+}
+
+// Request to start ZK authentication
+message ZKAuthenticationRequest {
+  string username = 1;
+}
+
+// ZK challenge response
+message ZKChallengeResponse {
+  string H = 1;
+}
+
+// Request to verify ZK proof
+message ZKProofRequest {
+  string username = 1;
+  string proof = 2;
+}
+
+// ZK proof response
+message ZKProofResponse {
+  string session_token = 1;
 }
