@@ -2,7 +2,7 @@ import sqlite3
 
 class Database:
     def __init__(self, db_name="tsm.db"):
-        self.conn = sqlite3.connect(db_name)
+        self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.create_tables()
 
@@ -22,7 +22,7 @@ class Database:
         """)
         self.conn.commit()
 
-    def upsert_session(self, session):
+    def upsert_session(self, session, encrypted_data=None):
         cursor = self.conn.cursor()
         tags = ",".join(session.tags)
         cursor.execute("""
@@ -35,7 +35,7 @@ class Database:
                 is_encrypted=excluded.is_encrypted,
                 encrypted_data=excluded.encrypted_data,
                 tags=excluded.tags
-        """, (session.id, session.name, session.created_timestamp, session.created_timestamp, session.size_bytes, session.is_encrypted, None, tags))
+        """, (session.id, session.name, session.created_timestamp, session.created_timestamp, session.size_bytes, session.is_encrypted, encrypted_data, tags))
         self.conn.commit()
 
     def get_session(self, session_id):

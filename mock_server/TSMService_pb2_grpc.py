@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from mock_server import TSMService_pb2 as mock__server_dot_TSMService__pb2
+import TSMService_pb2 as TSMService__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in mock_server/TSMService_pb2_grpc.py depends on'
+        + f' but the generated code in TSMService_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -37,23 +37,53 @@ class TSMServiceStub(object):
         """
         self.ListSessions = channel.unary_unary(
                 '/tsm.TSMService/ListSessions',
-                request_serializer=mock__server_dot_TSMService__pb2.Empty.SerializeToString,
-                response_deserializer=mock__server_dot_TSMService__pb2.SessionList.FromString,
+                request_serializer=TSMService__pb2.Empty.SerializeToString,
+                response_deserializer=TSMService__pb2.SessionList.FromString,
+                _registered_method=True)
+        self.GetSessionData = channel.unary_unary(
+                '/tsm.TSMService/GetSessionData',
+                request_serializer=TSMService__pb2.GetSessionDataRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.GetSessionDataResponse.FromString,
+                _registered_method=True)
+        self.AnalyzeSession = channel.unary_unary(
+                '/tsm.TSMService/AnalyzeSession',
+                request_serializer=TSMService__pb2.AnalyzeSessionRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.AnalyzeSessionResponse.FromString,
                 _registered_method=True)
         self.SwitchSession = channel.unary_unary(
                 '/tsm.TSMService/SwitchSession',
-                request_serializer=mock__server_dot_TSMService__pb2.SwitchRequest.SerializeToString,
-                response_deserializer=mock__server_dot_TSMService__pb2.SwitchResponse.FromString,
+                request_serializer=TSMService__pb2.SwitchRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.SwitchResponse.FromString,
+                _registered_method=True)
+        self.GetSessionDetails = channel.unary_unary(
+                '/tsm.TSMService/GetSessionDetails',
+                request_serializer=TSMService__pb2.GetSessionDetailsRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.GetSessionDetailsResponse.FromString,
+                _registered_method=True)
+        self.StartSRPAuthentication = channel.unary_unary(
+                '/tsm.TSMService/StartSRPAuthentication',
+                request_serializer=TSMService__pb2.SRPAuthenticationRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.SRPChallengeResponse.FromString,
+                _registered_method=True)
+        self.VerifySRP = channel.unary_unary(
+                '/tsm.TSMService/VerifySRP',
+                request_serializer=TSMService__pb2.SRPVerifyRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.SRPVerifyResponse.FromString,
+                _registered_method=True)
+        self.EncryptedSearch = channel.unary_unary(
+                '/tsm.TSMService/EncryptedSearch',
+                request_serializer=TSMService__pb2.SearchRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.SearchResponse.FromString,
                 _registered_method=True)
         self.BackupSession = channel.unary_stream(
                 '/tsm.TSMService/BackupSession',
-                request_serializer=mock__server_dot_TSMService__pb2.BackupRequest.SerializeToString,
-                response_deserializer=mock__server_dot_TSMService__pb2.BackupChunk.FromString,
+                request_serializer=TSMService__pb2.BackupRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.BackupChunk.FromString,
                 _registered_method=True)
         self.GetMetrics = channel.unary_unary(
                 '/tsm.TSMService/GetMetrics',
-                request_serializer=mock__server_dot_TSMService__pb2.Empty.SerializeToString,
-                response_deserializer=mock__server_dot_TSMService__pb2.SystemMetrics.FromString,
+                request_serializer=TSMService__pb2.Empty.SerializeToString,
+                response_deserializer=TSMService__pb2.SystemMetrics.FromString,
                 _registered_method=True)
 
 
@@ -68,8 +98,50 @@ class TSMServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetSessionData(self, request, context):
+        """Retrieves the data for a specific session
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AnalyzeSession(self, request, context):
+        """Analyzes a session for security risks
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def SwitchSession(self, request, context):
         """Activates a specific session
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetSessionDetails(self, request, context):
+        """Retrieves detailed information about a specific session
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def StartSRPAuthentication(self, request, context):
+        """Starts the SRP authentication process
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def VerifySRP(self, request, context):
+        """Verifies the client's SRP proof
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def EncryptedSearch(self, request, context):
+        """Performs a search on encrypted data
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -94,23 +166,53 @@ def add_TSMServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ListSessions': grpc.unary_unary_rpc_method_handler(
                     servicer.ListSessions,
-                    request_deserializer=mock__server_dot_TSMService__pb2.Empty.FromString,
-                    response_serializer=mock__server_dot_TSMService__pb2.SessionList.SerializeToString,
+                    request_deserializer=TSMService__pb2.Empty.FromString,
+                    response_serializer=TSMService__pb2.SessionList.SerializeToString,
+            ),
+            'GetSessionData': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSessionData,
+                    request_deserializer=TSMService__pb2.GetSessionDataRequest.FromString,
+                    response_serializer=TSMService__pb2.GetSessionDataResponse.SerializeToString,
+            ),
+            'AnalyzeSession': grpc.unary_unary_rpc_method_handler(
+                    servicer.AnalyzeSession,
+                    request_deserializer=TSMService__pb2.AnalyzeSessionRequest.FromString,
+                    response_serializer=TSMService__pb2.AnalyzeSessionResponse.SerializeToString,
             ),
             'SwitchSession': grpc.unary_unary_rpc_method_handler(
                     servicer.SwitchSession,
-                    request_deserializer=mock__server_dot_TSMService__pb2.SwitchRequest.FromString,
-                    response_serializer=mock__server_dot_TSMService__pb2.SwitchResponse.SerializeToString,
+                    request_deserializer=TSMService__pb2.SwitchRequest.FromString,
+                    response_serializer=TSMService__pb2.SwitchResponse.SerializeToString,
+            ),
+            'GetSessionDetails': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSessionDetails,
+                    request_deserializer=TSMService__pb2.GetSessionDetailsRequest.FromString,
+                    response_serializer=TSMService__pb2.GetSessionDetailsResponse.SerializeToString,
+            ),
+            'StartSRPAuthentication': grpc.unary_unary_rpc_method_handler(
+                    servicer.StartSRPAuthentication,
+                    request_deserializer=TSMService__pb2.SRPAuthenticationRequest.FromString,
+                    response_serializer=TSMService__pb2.SRPChallengeResponse.SerializeToString,
+            ),
+            'VerifySRP': grpc.unary_unary_rpc_method_handler(
+                    servicer.VerifySRP,
+                    request_deserializer=TSMService__pb2.SRPVerifyRequest.FromString,
+                    response_serializer=TSMService__pb2.SRPVerifyResponse.SerializeToString,
+            ),
+            'EncryptedSearch': grpc.unary_unary_rpc_method_handler(
+                    servicer.EncryptedSearch,
+                    request_deserializer=TSMService__pb2.SearchRequest.FromString,
+                    response_serializer=TSMService__pb2.SearchResponse.SerializeToString,
             ),
             'BackupSession': grpc.unary_stream_rpc_method_handler(
                     servicer.BackupSession,
-                    request_deserializer=mock__server_dot_TSMService__pb2.BackupRequest.FromString,
-                    response_serializer=mock__server_dot_TSMService__pb2.BackupChunk.SerializeToString,
+                    request_deserializer=TSMService__pb2.BackupRequest.FromString,
+                    response_serializer=TSMService__pb2.BackupChunk.SerializeToString,
             ),
             'GetMetrics': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMetrics,
-                    request_deserializer=mock__server_dot_TSMService__pb2.Empty.FromString,
-                    response_serializer=mock__server_dot_TSMService__pb2.SystemMetrics.SerializeToString,
+                    request_deserializer=TSMService__pb2.Empty.FromString,
+                    response_serializer=TSMService__pb2.SystemMetrics.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -139,8 +241,62 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/ListSessions',
-            mock__server_dot_TSMService__pb2.Empty.SerializeToString,
-            mock__server_dot_TSMService__pb2.SessionList.FromString,
+            TSMService__pb2.Empty.SerializeToString,
+            TSMService__pb2.SessionList.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetSessionData(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/GetSessionData',
+            TSMService__pb2.GetSessionDataRequest.SerializeToString,
+            TSMService__pb2.GetSessionDataResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AnalyzeSession(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/AnalyzeSession',
+            TSMService__pb2.AnalyzeSessionRequest.SerializeToString,
+            TSMService__pb2.AnalyzeSessionResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -166,8 +322,116 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/SwitchSession',
-            mock__server_dot_TSMService__pb2.SwitchRequest.SerializeToString,
-            mock__server_dot_TSMService__pb2.SwitchResponse.FromString,
+            TSMService__pb2.SwitchRequest.SerializeToString,
+            TSMService__pb2.SwitchResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetSessionDetails(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/GetSessionDetails',
+            TSMService__pb2.GetSessionDetailsRequest.SerializeToString,
+            TSMService__pb2.GetSessionDetailsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def StartSRPAuthentication(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/StartSRPAuthentication',
+            TSMService__pb2.SRPAuthenticationRequest.SerializeToString,
+            TSMService__pb2.SRPChallengeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def VerifySRP(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/VerifySRP',
+            TSMService__pb2.SRPVerifyRequest.SerializeToString,
+            TSMService__pb2.SRPVerifyResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def EncryptedSearch(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/EncryptedSearch',
+            TSMService__pb2.SearchRequest.SerializeToString,
+            TSMService__pb2.SearchResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -193,8 +457,8 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/BackupSession',
-            mock__server_dot_TSMService__pb2.BackupRequest.SerializeToString,
-            mock__server_dot_TSMService__pb2.BackupChunk.FromString,
+            TSMService__pb2.BackupRequest.SerializeToString,
+            TSMService__pb2.BackupChunk.FromString,
             options,
             channel_credentials,
             insecure,
@@ -220,8 +484,8 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/GetMetrics',
-            mock__server_dot_TSMService__pb2.Empty.SerializeToString,
-            mock__server_dot_TSMService__pb2.SystemMetrics.FromString,
+            TSMService__pb2.Empty.SerializeToString,
+            TSMService__pb2.SystemMetrics.FromString,
             options,
             channel_credentials,
             insecure,

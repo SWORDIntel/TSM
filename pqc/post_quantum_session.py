@@ -1,40 +1,35 @@
 import oqs
-import json
 
 class PostQuantumSession:
     """
-    Establishes a post-quantum secure session using CRYSTALS-Kyber and CRYSTALS-Dilithium.
-    """
+    Establishes a secure session using a post-quantum key-encapsulation mechanism (KEM).
 
+    This class uses Kyber, a candidate in the NIST Post-Quantum Cryptography
+    standardization process.
+    """
     def __init__(self):
         self.kem = oqs.KeyEncapsulation("Kyber768")
-        self.sig = oqs.Signature("Dilithium3")
+        self.public_key, self.secret_key = self.kem.generate_keypair()
+        self.shared_secret = None
 
-        self.key_pair = self.sig.generate_keypair()
-        self.public_key = self.key_pair["public_key"]
+    def get_public_key(self) -> bytes:
+        """Returns the public key for the session."""
+        return self.public_key
 
-    def establish_session(self):
+    def generate_shared_secret(self, remote_public_key: bytes) -> bytes:
         """
-        Generates ephemeral keys and produces a signed public key bundle.
+        Generates a shared secret using the remote public key.
+
+        This is the client-side operation.
         """
-        ephemeral_key_pair = self.kem.generate_keypair()
-        ephemeral_public_key = ephemeral_key_pair["public_key"]
+        ciphertext, shared_secret = self.kem.encap_secret(remote_public_key)
+        self.shared_secret = shared_secret
+        return ciphertext
 
-        # Sign the ephemeral public key
-        signature = self.sig.sign(ephemeral_public_key, self.key_pair["secret_key"])
-
-        # Create the public key bundle
-        public_key_bundle = {
-            "ephemeral_public_key": ephemeral_public_key.hex(),
-            "signature": signature.hex(),
-            "verification_key": self.public_key.hex()
-        }
-
-        return json.dumps(public_key_bundle)
-
-    def decrypt_shared_secret(self, ciphertext, ephemeral_key_pair):
+    def decrypt_shared_secret(self, ciphertext: bytes) -> None:
         """
-        Decrypts the shared secret using the ephemeral private key.
+        Decrypts the ciphertext to get the shared secret.
+
+        This is the server-side operation.
         """
-        shared_secret = self.kem.decap_secret(ciphertext, ephemeral_key_pair["secret_key"])
-        return shared_secret
+        self.shared_secret = self.kem.decap_secret(self.secret_key, ciphertext)

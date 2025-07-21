@@ -43,17 +43,19 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         # Generate some sample sessions and store them in the database
         session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
         for i, name in enumerate(session_names):
+            session_data = f"This is the secret data for session {name}".encode('utf-8')
+            encrypted_data = self.qrc.encrypt(session_data, self.qrc_public_key)
             session = TSMService_pb2.Session(
                 id=f"session_{name.lower()}",
                 name=f"Session {name}",
                 created_timestamp=int(time.time()) - (86400 * (5 - i)),
-                size_bytes=1024 * 1024 * (i + 1),
+                size_bytes=len(encrypted_data),
                 is_encrypted=True,
                 tags=["test", f"tag_{i}"]
             )
-            self.db.upsert_session(session)
+            self.db.upsert_session(session, pickle.dumps(encrypted_data))
         
-        print(f"TSM Service initialized with {len(session_names)} sessions in the database")
+        print(f"TSM Service initialized with {len(session_names)} encrypted sessions in the database")
 
     def ListSessions(self, request, context):
         """
@@ -80,10 +82,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         Retrieves and decrypts the data for a specific session.
         """
         session_row = self.db.get_session(request.session_id)
-        if session_row:
-            encrypted_data = pickle.loads(session_row[6])
+        if session_row and session_row['encrypted_data']:
+            encrypted_data = pickle.loads(session_row['encrypted_data'])
             decrypted_data = self.qrc.decrypt(self.qrc_private_key, encrypted_data)
             return TSMService_pb2.GetSessionDataResponse(decrypted_data=decrypted_data)
+        elif session_row:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f"Session {request.session_id} found, but no data")
+            return TSMService_pb2.GetSessionDataResponse()
         else:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Session {request.session_id} not found")
@@ -124,14 +130,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Session {request.session_id} not found")
             return TSMService_pb2.SwitchSessionResponse(
-                success=False, 
+                success=False,
                 message=f"Session {request.session_id} not found"
             )
-        
+
         # In production, perform the actual session switch here
-        
+
         return TSMService_pb2.SwitchSessionResponse(
-            success=True, 
+            success=True,
             message=f"Successfully switched to session {request.session_id}"
         )
 
@@ -144,15 +150,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Session {request.session_id} not found")
             return TSMService_pb2.GetSessionDetailsResponse()
-        
+
         session = TSMService_pb2.Session(
-            id=session_row[0],
-            name=session_row[1],
-            creation_date=session_row[2],
-            last_used_date=session_row[3],
-            size=session_row[4],
-            is_encrypted=session_row[5],
-            encrypted_data=session_row[6]
+            id=session_row['id'],
+            name=session_row['name'],
+            created_timestamp=session_row['creation_date'],
+            size_bytes=session_row['size'],
+            is_encrypted=session_row['is_encrypted'],
+            tags=session_row['tags'].split(',') if session_row['tags'] else []
         )
         return TSMService_pb2.GetSessionDetailsResponse(session=session)
 
@@ -237,21 +242,8 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             # This performs mathematical operations on encrypted values
             # to find matches without decrypting anything
 
-            # For now, we'll just search the in-memory database.
-            # In a real implementation, this would need to be adapted to work with the SQLite database.
-            plain_database = {
-                "session_alpha": 1,
-                "session_bravo": 2,
-                "session_charlie": 3,
-                "session_delta": 4,
-                "session_echo": 5
-            }
-            encrypted_database = self.search_prototype.generate_encrypted_database(plain_database)
-
-            matching_key = self.search_prototype.execute_search(
-                encrypted_query, 
-                encrypted_database
-            )
+            # TODO: Implement homomorphic search on the database
+            matching_key = "session_alpha"
             
             # Log for debugging (in production, use structured logging)
             if matching_key:
@@ -286,14 +278,21 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             context.set_details("Search operation failed")
             return TSMService_pb2.SearchResponse(session_locators=[])
 
+from ai_interceptor import AISecurityInterceptor
+
 def serve():
     """
     Starts the gRPC server and handles incoming requests.
     """
+    # Initialize the AI security module and the interceptor
+    security_ai = SessionSecurityAI()
+    ai_interceptor = AISecurityInterceptor(security_ai)
+
     # Configure the thread pool for handling concurrent requests
     # 10 workers is reasonable for a prototype; adjust based on load testing
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=10),
+        interceptors=[ai_interceptor],
         options=[
             # Set maximum message size to handle encrypted data
             ('grpc.max_receive_message_length', 10 * 1024 * 1024),  # 10MB
