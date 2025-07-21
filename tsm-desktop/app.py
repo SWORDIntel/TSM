@@ -1,6 +1,7 @@
 import sys
 import os
 import pickle
+import json
 
 # Configure the Python path to find our modules
 # This ensures imports work regardless of where the script is run from
@@ -69,6 +70,7 @@ class TSMDesktop(App):
         ("p", "provision_yubikey", "Provision YubiKey"),
         ("r", "refresh", "Refresh Sessions"),
         ("c", "clear_log", "Clear Log"),
+        ("z", "zk_auth", "ZK Auth"),
         ("q", "quit", "Quit"),
     ]
 
@@ -323,6 +325,54 @@ class TSMDesktop(App):
         """Clear the log viewer."""
         self.query_one(LogViewer).update("Log cleared\n" + "="*40 + "\n")
         self.log("Log viewer cleared")
+
+    def action_zk_auth(self) -> None:
+        """Perform ZK-proof authentication."""
+        if not self.stub:
+            self.log("Error: Not connected to server")
+            return
+
+        self.log("\n" + "="*50)
+        self.log("ZERO-KNOWLEDGE PROOF AUTHENTICATION")
+        self.log("="*50 + "\n")
+
+        # For the prototype, we use a hardcoded username and password
+        username = "user"
+        password = "password"
+        self.log(f"Authenticating as user: {username}")
+
+        try:
+            # 1. Start the authentication process
+            self.log("Requesting ZK challenge from server...")
+            from zkp_utils import serialize_point, deserialize_point
+            start_request = TSMService_pb2.ZKAuthenticationRequest(username=username)
+            start_response = self.stub.StartZKAuthentication(start_request)
+            H = deserialize_point(json.loads(start_response.H))
+            self.log("✓ Challenge received")
+
+            # 2. Generate the proof
+            self.log("Generating ZK-proof...")
+            from zk_session_proof import ZKSessionProof
+            zk = ZKSessionProof()
+            _, proof = zk.generate_proof(password)
+            self.log("✓ Proof generated")
+
+            # 3. Verify the proof
+            self.log("Sending proof to server for verification...")
+            verify_request = TSMService_pb2.ZKProofRequest(username=username, proof=json.dumps(serialize_point(proof)))
+            verify_response = self.stub.VerifyZKProof(verify_request)
+
+            if verify_response.session_token:
+                self.log("✓ ZK-proof authentication successful")
+                self.log(f"Session token: {verify_response.session_token}")
+                self.query_one(StatusBar).update("ZK Authenticated")
+            else:
+                self.log("✗ ZK-proof authentication failed")
+                self.query_one(StatusBar).update("ZK Auth Failed")
+
+        except grpc.RpcError as e:
+            self.log(f"\n✗ ZK authentication failed: {e.details()}")
+            self.query_one(StatusBar).update("ZK Auth Error")
 
     def action_toggle_dark(self) -> None:
         """Toggle between light and dark theme."""

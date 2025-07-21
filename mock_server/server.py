@@ -11,6 +11,9 @@ from pqc.quantum_crypto import QuantumResistantCrypto
 from tsm_ai_security import SessionSecurityAI
 from database import Database
 from identity.hardware_rooted_srp import HardwareRootedSRP
+from zk_session_proof import ZKSessionProof
+from zkp_utils import serialize_point, deserialize_point
+import json
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     """
@@ -39,6 +42,8 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
 
         # In-memory store for SRP sessions
         self.srp_sessions = {}
+        # In-memory store for ZK sessions
+        self.zk_sessions = {}
 
         # Generate some sample sessions and store them in the database
         session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
@@ -191,6 +196,40 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         # The client would then send a proof (M1), and the server would verify it and send its own proof (M2).
         # For simplicity, we'll just return a dummy M2.
         return TSMService_pb2.SRPVerifyResponse(m2=b"server_proof")
+
+    def StartZKAuthentication(self, request, context):
+        """
+        Starts the ZK-proof authentication process.
+        """
+        username = request.username
+        # In a real application, you would look up the user's password from a database.
+        # For this example, we'll just use a dummy password.
+        password = "password"
+        zk = ZKSessionProof()
+        H, proof = zk.generate_proof(password)
+        self.zk_sessions[username] = {"H": H, "proof": proof}
+        return TSMService_pb2.ZKChallengeResponse(H=json.dumps(serialize_point(H)))
+
+    def VerifyZKProof(self, request, context):
+        """
+        Verifies the client's ZK-proof.
+        """
+        username = request.username
+        session = self.zk_sessions.get(username)
+        if not session:
+            context.set_code(grpc.StatusCode.FAILED_PRECONDITION)
+            context.set_details("ZK session not found.")
+            return TSMService_pb2.ZKProofResponse()
+
+        zk = ZKSessionProof()
+        proof = deserialize_point(json.loads(request.proof))
+        if zk.verify_proof(session["H"], proof):
+            # In a real application, you would generate a session token.
+            return TSMService_pb2.ZKProofResponse(session_token="dummy_token")
+        else:
+            context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+            context.set_details("ZK proof verification failed.")
+            return TSMService_pb2.ZKProofResponse()
 
     def EncryptedSearch(self, request, context):
         """

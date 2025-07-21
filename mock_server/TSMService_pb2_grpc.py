@@ -75,6 +75,16 @@ class TSMServiceStub(object):
                 request_serializer=TSMService__pb2.SearchRequest.SerializeToString,
                 response_deserializer=TSMService__pb2.SearchResponse.FromString,
                 _registered_method=True)
+        self.StartZKAuthentication = channel.unary_unary(
+                '/tsm.TSMService/StartZKAuthentication',
+                request_serializer=TSMService__pb2.ZKAuthenticationRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.ZKChallengeResponse.FromString,
+                _registered_method=True)
+        self.VerifyZKProof = channel.unary_unary(
+                '/tsm.TSMService/VerifyZKProof',
+                request_serializer=TSMService__pb2.ZKProofRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.ZKProofResponse.FromString,
+                _registered_method=True)
         self.BackupSession = channel.unary_stream(
                 '/tsm.TSMService/BackupSession',
                 request_serializer=TSMService__pb2.BackupRequest.SerializeToString,
@@ -147,6 +157,20 @@ class TSMServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def StartZKAuthentication(self, request, context):
+        """Starts the ZK-proof authentication process
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def VerifyZKProof(self, request, context):
+        """Verifies the client's ZK-proof
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def BackupSession(self, request, context):
         """Streams a backup of a specific session
         """
@@ -203,6 +227,16 @@ def add_TSMServiceServicer_to_server(servicer, server):
                     servicer.EncryptedSearch,
                     request_deserializer=TSMService__pb2.SearchRequest.FromString,
                     response_serializer=TSMService__pb2.SearchResponse.SerializeToString,
+            ),
+            'StartZKAuthentication': grpc.unary_unary_rpc_method_handler(
+                    servicer.StartZKAuthentication,
+                    request_deserializer=TSMService__pb2.ZKAuthenticationRequest.FromString,
+                    response_serializer=TSMService__pb2.ZKChallengeResponse.SerializeToString,
+            ),
+            'VerifyZKProof': grpc.unary_unary_rpc_method_handler(
+                    servicer.VerifyZKProof,
+                    request_deserializer=TSMService__pb2.ZKProofRequest.FromString,
+                    response_serializer=TSMService__pb2.ZKProofResponse.SerializeToString,
             ),
             'BackupSession': grpc.unary_stream_rpc_method_handler(
                     servicer.BackupSession,
@@ -432,6 +466,60 @@ class TSMService(object):
             '/tsm.TSMService/EncryptedSearch',
             TSMService__pb2.SearchRequest.SerializeToString,
             TSMService__pb2.SearchResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def StartZKAuthentication(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/StartZKAuthentication',
+            TSMService__pb2.ZKAuthenticationRequest.SerializeToString,
+            TSMService__pb2.ZKChallengeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def VerifyZKProof(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/VerifyZKProof',
+            TSMService__pb2.ZKProofRequest.SerializeToString,
+            TSMService__pb2.ZKProofResponse.FromString,
             options,
             channel_credentials,
             insecure,
