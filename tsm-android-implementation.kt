@@ -61,27 +61,6 @@ android {
     }
 }
 
-@Composable
-fun SearchResultsScreen(results: List<String>) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("Search Results", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        if (results.isEmpty()) {
-            Text("No results found.")
-        } else {
-            LazyColumn {
-                items(results) { result ->
-                    Text(result)
-                }
-            }
-        }
-    }
-}
-
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -666,13 +645,6 @@ class TSMNetworkClient @Inject constructor(
         data class Success(val message: String) : SwitchResult()
         data class Error(val message: String) : SwitchResult()
     }
-
-    suspend fun encryptedSearch(encryptedQuery: ByteArray): SearchResponse = withContext(Dispatchers.IO) {
-        val request = EncryptedSearchRequest.newBuilder()
-            .setEncryptedQuery(com.google.protobuf.ByteString.copyFrom(encryptedQuery))
-            .build()
-        stub!!.encryptedSearch(request)
-    }
 }
 
 // ============================================================================
@@ -698,84 +670,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
-import com.tsm.mobile.HomomorphicSearchPrototype
-import com.tsm.mobile.network.TSMNetworkClient
 import com.tsm.mobile.ui.theme.*
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-
-sealed class UiState {
-    object Unauthenticated : UiState()
-    object Authenticated : UiState()
-    object Loading : UiState()
-    data class Error(val message: String) : UiState()
-    data class SearchSuccess(val results: List<String>) : UiState()
-}
-
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    private val networkClient: TSMNetworkClient
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow<UiState>(UiState.Unauthenticated)
-    val uiState = _uiState.asStateFlow()
-
-    private val _sessions = MutableStateFlow<List<RemoteSession>>(emptyList())
-    val sessions = _sessions.asStateFlow()
-
-    private val _activeSessionId = MutableStateFlow<String?>(null)
-    val activeSessionId = _activeSessionId.asStateFlow()
-
-    fun authenticate() {
-        // ...
-    }
-
-    fun retry() {
-        // ...
-    }
-
-    fun showSettings() {
-        // ...
-    }
-
-    fun createBackup() {
-        // ...
-    }
-
-    fun showActions() {
-        // ...
-    }
-
-    fun showSecurity() {
-        // ...
-    }
-
-    fun switchSession(sessionId: String) {
-        // ...
-    }
-
-    fun search(query: String) {
-        viewModelScope.launch {
-            try {
-                _uiState.value = UiState.Loading
-                val searchPrototype = HomomorphicSearchPrototype()
-                val encryptedQuery = searchPrototype.generateEncryptedQuery(query.toInt())
-                val response = networkClient.encryptedSearch(encryptedQuery.toByteArray())
-                _uiState.value = UiState.SearchSuccess(response.sessionLocatorsList)
-            } catch (e: Exception) {
-                _uiState.value = UiState.Error(e.message ?: "Search failed")
-            }
-        }
-    }
-}
-
 
 @Composable
 fun TSMApp() {
@@ -783,7 +679,7 @@ fun TSMApp() {
         val viewModel: MainViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         
-        when (val state = uiState) {
+        when (uiState) {
             is UiState.Unauthenticated -> {
                 BiometricAuthScreen(
                     onAuthenticate = { viewModel.authenticate() }
@@ -797,12 +693,9 @@ fun TSMApp() {
             }
             is UiState.Error -> {
                 ErrorScreen(
-                    message = state.message,
+                    message = uiState.message,
                     onRetry = { viewModel.retry() }
                 )
-            }
-            is UiState.SearchSuccess -> {
-                SearchResultsScreen(results = state.results)
             }
         }
     }
@@ -813,7 +706,6 @@ fun TSMApp() {
 fun MainScreen(viewModel: MainViewModel) {
     val sessions by viewModel.sessions.collectAsStateWithLifecycle()
     val activeSessionId by viewModel.activeSessionId.collectAsStateWithLifecycle()
-    var searchQuery by remember { mutableStateOf("") }
     
     Scaffold(
         topBar = {
@@ -831,9 +723,6 @@ fun MainScreen(viewModel: MainViewModel) {
                     titleContentColor = MaterialTheme.colorScheme.primary
                 ),
                 actions = {
-                    IconButton(onClick = { viewModel.search(searchQuery) }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
                     IconButton(onClick = { viewModel.showSettings() }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
@@ -871,28 +760,19 @@ fun MainScreen(viewModel: MainViewModel) {
             }
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Search") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(sessions) { session ->
-                    SessionCard(
-                        session = session,
-                        isActive = session.id == activeSessionId,
-                        onClick = { viewModel.switchSession(session.id) }
-                    )
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(sessions) { session ->
+                SessionCard(
+                    session = session,
+                    isActive = session.id == activeSessionId,
+                    onClick = { viewModel.switchSession(session.id) }
+                )
             }
         }
     }

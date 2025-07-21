@@ -1,28 +1,24 @@
 import grpc
 from concurrent import futures
 import time
+import pickle
 
 import TSMService_pb2
 import TSMService_pb2_grpc
 from homomorphic_search import HomomorphicSearchPrototype
-from phe import paillier
-
-# Create an instance of the prototype
-prototype = HomomorphicSearchPrototype()
-
-# Create a sample database
-plain_database = {
-    "session_1": 1,
-    "session_2": 2,
-    "session_3": 3,
-    "session_4": 4,
-    "session_5": 5
-}
-
-# Encrypt the database
-encrypted_database = prototype.generate_encrypted_database(plain_database)
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
+    def __init__(self):
+        self.search_prototype = HomomorphicSearchPrototype()
+        self.plain_database = {
+            "session_alpha": 1,
+            "session_bravo": 2,
+            "session_charlie": 3,
+            "session_delta": 4,
+            "session_echo": 5
+        }
+        self.encrypted_database = self.search_prototype.generate_encrypted_database(self.plain_database)
+
     def ListSessions(self, request, context):
         sessions = []
         for i in range(5):
@@ -52,22 +48,11 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         return TSMService_pb2.GetSessionDetailsResponse(session=session)
 
     def EncryptedSearch(self, request, context):
-        try:
-            # The client sends the encrypted query as bytes, so we need to deserialize it
-            # The Paillier library doesn't have a direct deserialization method,
-            # so we need to reconstruct the EncryptedNumber object.
-            # This is a bit of a hack for the prototype. In a real implementation,
-            # we would use a proper serialization format.
-            encrypted_query_ciphertext = int.from_bytes(request.encrypted_query, 'big')
-            encrypted_query = paillier.EncryptedNumber(prototype.public_key, encrypted_query_ciphertext)
-
-            matching_key = prototype.execute_search(encrypted_query, encrypted_database)
-            if matching_key:
-                return TSMService_pb2.SearchResponse(session_locators=[matching_key])
-            else:
-                return TSMService_pb2.SearchResponse(session_locators=[])
-        except Exception as e:
-            print(f"Error during search: {e}")
+        encrypted_query = pickle.loads(request.encrypted_query)
+        matching_key = self.search_prototype.execute_search(encrypted_query, self.encrypted_database)
+        if matching_key:
+            return TSMService_pb2.SearchResponse(session_locators=[matching_key])
+        else:
             return TSMService_pb2.SearchResponse(session_locators=[])
 
 def serve():
