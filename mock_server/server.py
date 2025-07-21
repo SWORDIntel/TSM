@@ -7,6 +7,7 @@ import TSMService_pb2
 import TSMService_pb2_grpc
 from homomorphic_search import HomomorphicSearchPrototype
 from phe import paillier
+from encrypted_index_manager import EncryptedIndexManager
 from pqc.quantum_crypto import QuantumResistantCrypto
 from tsm_ai_security import SessionSecurityAI
 from database import Database
@@ -31,7 +32,8 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
 
         # Initialize the homomorphic search prototype
         # This creates the encryption keys and sets up the cryptographic framework
-        self.search_prototype = HomomorphicSearchPrototype()
+        self.index_manager = EncryptedIndexManager()
+        self.search_prototype = self.index_manager.get_search_prototype()
         
         # Initialize the quantum-resistant crypto module
         self.qrc = QuantumResistantCrypto()
@@ -50,8 +52,9 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         for i, name in enumerate(session_names):
             session_data = f"This is the secret data for session {name}".encode('utf-8')
             encrypted_data = self.qrc.encrypt(session_data, self.qrc_public_key)
+            session_id = f"session_{name.lower()}"
             session = TSMService_pb2.Session(
-                id=f"session_{name.lower()}",
+                id=session_id,
                 name=f"Session {name}",
                 created_timestamp=int(time.time()) - (86400 * (5 - i)),
                 size_bytes=len(encrypted_data),
@@ -59,6 +62,7 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
                 tags=["test", f"tag_{i}"]
             )
             self.db.upsert_session(session, pickle.dumps(encrypted_data))
+            self.index_manager.update_index(session_id, i)
         
         print(f"TSM Service initialized with {len(session_names)} encrypted sessions in the database")
 
@@ -244,78 +248,31 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         in the database - everything remains encrypted throughout the process.
         """
         try:
-            # Deserialize the encrypted query
-            # The pickle format allows us to transmit complex cryptographic objects
-            encrypted_query_data = pickle.loads(request.encrypted_query)
+            encrypted_query = pickle.loads(request.encrypted_query.encode('latin-1'))
+            encrypted_index = self.index_manager.get_index()
             
-            # Check if we received the new format (with proper Paillier reconstruction)
-            # or the old format (direct encrypted object)
-            if isinstance(encrypted_query_data, dict):
-                # New format: reconstruct the Paillier encrypted number
-                # This ensures proper cryptographic properties are maintained
+            matching_session_ids = []
+            for session_id, encrypted_value in encrypted_index.items():
+                # Homomorphically subtract the query from the database value
+                encrypted_diff = encrypted_value - encrypted_query
                 
-                # Validate required fields
-                required_fields = ['pk', 'n', 'e']
-                for field in required_fields:
-                    if field not in encrypted_query_data:
-                        raise ValueError(f"Missing required field: {field}")
+                # The server can't decrypt the difference, so it sends it to the client.
+                # In a real-world scenario, the client would decrypt the difference and
+                # determine if it's zero.
+                # For this prototype, we'll simulate the client-side decryption here.
+                private_key = self.search_prototype.private_key
+                decrypted_diff = private_key.decrypt(encrypted_diff)
                 
-                # Reconstruct the public key
-                # The public key n is the modulus used in Paillier encryption
-                public_key = paillier.PaillierPublicKey(int(encrypted_query_data['pk']))
+                if decrypted_diff == 0:
+                    matching_session_ids.append(session_id)
+            
+            return TSMService_pb2.SearchResponse(matching_session_ids=matching_session_ids)
                 
-                # Reconstruct the encrypted number
-                # n: the ciphertext (encrypted value)
-                # e: the exponent (used for optimization in Paillier)
-                encrypted_query = paillier.EncryptedNumber(
-                    public_key, 
-                    int(encrypted_query_data['n']), 
-                    int(encrypted_query_data['e'])
-                )
-            else:
-                # Old format: assume it's already an encrypted object
-                # This maintains backward compatibility during migration
-                encrypted_query = encrypted_query_data
-
-            # Execute the homomorphic search
-            # This performs mathematical operations on encrypted values
-            # to find matches without decrypting anything
-
-            # TODO: Implement homomorphic search on the database
-            matching_key = "session_alpha"
-            
-            # Log for debugging (in production, use structured logging)
-            if matching_key:
-                print(f"Search found match: {matching_key}")
-            else:
-                print("Search completed with no matches")
-            
-            # Return the results
-            if matching_key:
-                return TSMService_pb2.SearchResponse(session_locators=[matching_key])
-            else:
-                return TSMService_pb2.SearchResponse(session_locators=[])
-                
-        except pickle.UnpicklingError as e:
-            # Handle deserialization errors specifically
-            print(f"Failed to deserialize encrypted query: {e}")
-            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details("Invalid encrypted query format")
-            return TSMService_pb2.SearchResponse(session_locators=[])
-            
-        except ValueError as e:
-            # Handle validation errors
-            print(f"Invalid encrypted query data: {e}")
-            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details(str(e))
-            return TSMService_pb2.SearchResponse(session_locators=[])
-            
         except Exception as e:
-            # Handle unexpected errors
             print(f"Error during encrypted search: {e}")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details("Search operation failed")
-            return TSMService_pb2.SearchResponse(session_locators=[])
+            return TSMService_pb2.SearchResponse()
 
 from ai_interceptor import AISecurityInterceptor
 
@@ -340,7 +297,8 @@ def serve():
     )
     
     # Register our service implementation
-    TSMService_pb2_grpc.add_TSMServiceServicer_to_server(TSMService(), server)
+    service = TSMService()
+    TSMService_pb2_grpc.add_TSMServiceServicer_to_server(service, server)
     
     # Bind to port 50051 on all interfaces
     # In production, consider using TLS with server.add_secure_port()
@@ -351,6 +309,7 @@ def serve():
     print("TSM gRPC server started on port 50051...")
     print("Ready to handle encrypted search requests")
     
+
     try:
         # Keep the server running
         server.wait_for_termination()
