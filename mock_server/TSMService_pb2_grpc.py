@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import TSMService_pb2 as TSMService__pb2
+from mock_server import TSMService_pb2 as mock__server_dot_TSMService__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in TSMService_pb2_grpc.py depends on'
+        + f' but the generated code in mock_server/TSMService_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -26,7 +26,8 @@ if _version_not_supported:
 
 
 class TSMServiceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """The core service for managing TSM sessions
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -36,49 +37,54 @@ class TSMServiceStub(object):
         """
         self.ListSessions = channel.unary_unary(
                 '/tsm.TSMService/ListSessions',
-                request_serializer=TSMService__pb2.ListSessionsRequest.SerializeToString,
-                response_deserializer=TSMService__pb2.ListSessionsResponse.FromString,
+                request_serializer=mock__server_dot_TSMService__pb2.Empty.SerializeToString,
+                response_deserializer=mock__server_dot_TSMService__pb2.SessionList.FromString,
                 _registered_method=True)
         self.SwitchSession = channel.unary_unary(
                 '/tsm.TSMService/SwitchSession',
-                request_serializer=TSMService__pb2.SwitchSessionRequest.SerializeToString,
-                response_deserializer=TSMService__pb2.SwitchSessionResponse.FromString,
+                request_serializer=mock__server_dot_TSMService__pb2.SwitchRequest.SerializeToString,
+                response_deserializer=mock__server_dot_TSMService__pb2.SwitchResponse.FromString,
                 _registered_method=True)
-        self.GetSessionDetails = channel.unary_unary(
-                '/tsm.TSMService/GetSessionDetails',
-                request_serializer=TSMService__pb2.GetSessionDetailsRequest.SerializeToString,
-                response_deserializer=TSMService__pb2.GetSessionDetailsResponse.FromString,
+        self.BackupSession = channel.unary_stream(
+                '/tsm.TSMService/BackupSession',
+                request_serializer=mock__server_dot_TSMService__pb2.BackupRequest.SerializeToString,
+                response_deserializer=mock__server_dot_TSMService__pb2.BackupChunk.FromString,
                 _registered_method=True)
-        self.EncryptedSearch = channel.unary_unary(
-                '/tsm.TSMService/EncryptedSearch',
-                request_serializer=TSMService__pb2.EncryptedSearchRequest.SerializeToString,
-                response_deserializer=TSMService__pb2.SearchResponse.FromString,
+        self.GetMetrics = channel.unary_unary(
+                '/tsm.TSMService/GetMetrics',
+                request_serializer=mock__server_dot_TSMService__pb2.Empty.SerializeToString,
+                response_deserializer=mock__server_dot_TSMService__pb2.SystemMetrics.FromString,
                 _registered_method=True)
 
 
 class TSMServiceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """The core service for managing TSM sessions
+    """
 
     def ListSessions(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Retrieves a list of all available sessions
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SwitchSession(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Activates a specific session
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetSessionDetails(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def BackupSession(self, request, context):
+        """Streams a backup of a specific session
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def EncryptedSearch(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def GetMetrics(self, request, context):
+        """Retrieves system performance and status metrics
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -88,23 +94,23 @@ def add_TSMServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ListSessions': grpc.unary_unary_rpc_method_handler(
                     servicer.ListSessions,
-                    request_deserializer=TSMService__pb2.ListSessionsRequest.FromString,
-                    response_serializer=TSMService__pb2.ListSessionsResponse.SerializeToString,
+                    request_deserializer=mock__server_dot_TSMService__pb2.Empty.FromString,
+                    response_serializer=mock__server_dot_TSMService__pb2.SessionList.SerializeToString,
             ),
             'SwitchSession': grpc.unary_unary_rpc_method_handler(
                     servicer.SwitchSession,
-                    request_deserializer=TSMService__pb2.SwitchSessionRequest.FromString,
-                    response_serializer=TSMService__pb2.SwitchSessionResponse.SerializeToString,
+                    request_deserializer=mock__server_dot_TSMService__pb2.SwitchRequest.FromString,
+                    response_serializer=mock__server_dot_TSMService__pb2.SwitchResponse.SerializeToString,
             ),
-            'GetSessionDetails': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetSessionDetails,
-                    request_deserializer=TSMService__pb2.GetSessionDetailsRequest.FromString,
-                    response_serializer=TSMService__pb2.GetSessionDetailsResponse.SerializeToString,
+            'BackupSession': grpc.unary_stream_rpc_method_handler(
+                    servicer.BackupSession,
+                    request_deserializer=mock__server_dot_TSMService__pb2.BackupRequest.FromString,
+                    response_serializer=mock__server_dot_TSMService__pb2.BackupChunk.SerializeToString,
             ),
-            'EncryptedSearch': grpc.unary_unary_rpc_method_handler(
-                    servicer.EncryptedSearch,
-                    request_deserializer=TSMService__pb2.EncryptedSearchRequest.FromString,
-                    response_serializer=TSMService__pb2.SearchResponse.SerializeToString,
+            'GetMetrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMetrics,
+                    request_deserializer=mock__server_dot_TSMService__pb2.Empty.FromString,
+                    response_serializer=mock__server_dot_TSMService__pb2.SystemMetrics.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -115,7 +121,8 @@ def add_TSMServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class TSMService(object):
-    """Missing associated documentation comment in .proto file."""
+    """The core service for managing TSM sessions
+    """
 
     @staticmethod
     def ListSessions(request,
@@ -132,8 +139,8 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/ListSessions',
-            TSMService__pb2.ListSessionsRequest.SerializeToString,
-            TSMService__pb2.ListSessionsResponse.FromString,
+            mock__server_dot_TSMService__pb2.Empty.SerializeToString,
+            mock__server_dot_TSMService__pb2.SessionList.FromString,
             options,
             channel_credentials,
             insecure,
@@ -159,8 +166,8 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/SwitchSession',
-            TSMService__pb2.SwitchSessionRequest.SerializeToString,
-            TSMService__pb2.SwitchSessionResponse.FromString,
+            mock__server_dot_TSMService__pb2.SwitchRequest.SerializeToString,
+            mock__server_dot_TSMService__pb2.SwitchResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -172,7 +179,34 @@ class TSMService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetSessionDetails(request,
+    def BackupSession(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/tsm.TSMService/BackupSession',
+            mock__server_dot_TSMService__pb2.BackupRequest.SerializeToString,
+            mock__server_dot_TSMService__pb2.BackupChunk.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMetrics(request,
             target,
             options=(),
             channel_credentials=None,
@@ -185,36 +219,9 @@ class TSMService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/tsm.TSMService/GetSessionDetails',
-            TSMService__pb2.GetSessionDetailsRequest.SerializeToString,
-            TSMService__pb2.GetSessionDetailsResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def EncryptedSearch(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/tsm.TSMService/EncryptedSearch',
-            TSMService__pb2.EncryptedSearchRequest.SerializeToString,
-            TSMService__pb2.SearchResponse.FromString,
+            '/tsm.TSMService/GetMetrics',
+            mock__server_dot_TSMService__pb2.Empty.SerializeToString,
+            mock__server_dot_TSMService__pb2.SystemMetrics.FromString,
             options,
             channel_credentials,
             insecure,

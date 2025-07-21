@@ -7,6 +7,10 @@ import TSMService_pb2
 import TSMService_pb2_grpc
 from homomorphic_search import HomomorphicSearchPrototype
 from phe import paillier
+from pqc.quantum_crypto import QuantumResistantCrypto
+from tsm_ai_security import SessionSecurityAI
+from database import Database
+from identity.hardware_rooted_srp import HardwareRootedSRP
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     """
@@ -19,29 +23,37 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     """
     
     def __init__(self):
+        # Initialize the database
+        self.db = Database()
+
         # Initialize the homomorphic search prototype
         # This creates the encryption keys and sets up the cryptographic framework
         self.search_prototype = HomomorphicSearchPrototype()
         
-        # Create the sample database with meaningful session names
-        # Using phonetic alphabet names makes debugging easier and reduces confusion
-        # In production, these would be actual session identifiers from the database
-        self.plain_database = {
-            "session_alpha": 1,    # Value 1 encrypted
-            "session_bravo": 2,    # Value 2 encrypted
-            "session_charlie": 3,  # Value 3 encrypted
-            "session_delta": 4,    # Value 4 encrypted
-            "session_echo": 5      # Value 5 encrypted
-        }
+        # Initialize the quantum-resistant crypto module
+        self.qrc = QuantumResistantCrypto()
+        self.qrc_public_key, self.qrc_private_key = self.qrc.generate_kyber_keys()
+
+        # Initialize the session security AI
+        self.security_ai = SessionSecurityAI()
+
+        # In-memory store for SRP sessions
+        self.srp_sessions = {}
+
+        # Generate some sample sessions and store them in the database
+        session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
+        for i, name in enumerate(session_names):
+            session = TSMService_pb2.Session(
+                id=f"session_{name.lower()}",
+                name=f"Session {name}",
+                created_timestamp=int(time.time()) - (86400 * (5 - i)),
+                size_bytes=1024 * 1024 * (i + 1),
+                is_encrypted=True,
+                tags=["test", f"tag_{i}"]
+            )
+            self.db.upsert_session(session)
         
-        # Generate the encrypted version of the database
-        # Each value is encrypted using Paillier homomorphic encryption
-        # This allows mathematical operations on encrypted data
-        self.encrypted_database = self.search_prototype.generate_encrypted_database(
-            self.plain_database
-        )
-        
-        print(f"TSM Service initialized with {len(self.plain_database)} encrypted sessions")
+        print(f"TSM Service initialized with {len(session_names)} sessions in the database")
 
     def ListSessions(self, request, context):
         """
@@ -51,23 +63,51 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         filtered by the user_id from the request.
         """
         sessions = []
-        
-        # Generate session metadata
-        # In production, this would come from the database
-        session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
-        
-        for i in range(5):
+        for row in self.db.get_all_sessions():
             session = TSMService_pb2.Session(
-                id=f"session_{session_names[i].lower()}",
-                name=f"Session {session_names[i]}",
-                creation_date=int(time.time()) - (86400 * (5 - i)),  # Stagger creation dates
-                last_used_date=int(time.time()) - (3600 * (5 - i)),  # Stagger last used times
-                size=1024 * 1024 * (i + 1),  # Varying sizes
-                is_encrypted=True  # All sessions are encrypted in our system
+                id=row['id'],
+                name=row['name'],
+                created_timestamp=row['creation_date'],
+                size_bytes=row['size'],
+                is_encrypted=row['is_encrypted'],
+                tags=row['tags'].split(',') if row['tags'] else []
             )
             sessions.append(session)
-            
-        return TSMService_pb2.ListSessionsResponse(sessions=sessions)
+        return TSMService_pb2.SessionList(sessions=sessions)
+
+    def GetSessionData(self, request, context):
+        """
+        Retrieves and decrypts the data for a specific session.
+        """
+        session_row = self.db.get_session(request.session_id)
+        if session_row:
+            encrypted_data = pickle.loads(session_row[6])
+            decrypted_data = self.qrc.decrypt(self.qrc_private_key, encrypted_data)
+            return TSMService_pb2.GetSessionDataResponse(decrypted_data=decrypted_data)
+        else:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f"Session {request.session_id} not found")
+            return TSMService_pb2.GetSessionDataResponse()
+
+    def AnalyzeSession(self, request, context):
+        """
+        Analyzes a session for security risks.
+        """
+        session = request.session
+        session_data = {
+            "last_login_time": time.strftime("%H:%M", time.gmtime(session.last_used_date)),
+            "message_frequency_per_hour": 100, # dummy data
+            "api_calls_last_24h": 20 # dummy data
+        }
+        report = self.security_ai.analyze_session(session_data)
+
+        return TSMService_pb2.AnalyzeSessionResponse(
+            report=TSMService_pb2.SecurityReport(
+                risk_score=report.risk_score,
+                threats=report.threats,
+                recommends=report.recommendations
+            )
+        )
 
     def SwitchSession(self, request, context):
         """
@@ -79,8 +119,8 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         3. Loading the new session
         4. Updating the last_used timestamp
         """
-        # Validate that the session exists
-        if not any(request.session_id in key for key in self.plain_database.keys()):
+        session_row = self.db.get_session(request.session_id)
+        if not session_row:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Session {request.session_id} not found")
             return TSMService_pb2.SwitchSessionResponse(
@@ -99,32 +139,53 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         """
         Retrieves detailed information about a specific session.
         """
-        # Extract the session identifier (e.g., "alpha" from "session_alpha")
-        session_key = None
-        for key in self.plain_database.keys():
-            if request.session_id in key:
-                session_key = key
-                break
-                
-        if not session_key:
+        session_row = self.db.get_session(request.session_id)
+        if not session_row:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Session {request.session_id} not found")
-            # Return an empty session with error indicators
             return TSMService_pb2.GetSessionDetailsResponse()
         
-        # Create detailed session information
-        session_suffix = session_key.split('_')[1].capitalize()
-        
         session = TSMService_pb2.Session(
-            id=request.session_id,
-            name=f"Session {session_suffix}",
-            creation_date=int(time.time()) - 86400,  # Created 24 hours ago
-            last_used_date=int(time.time()) - 3600,  # Used 1 hour ago
-            size=2 * 1024 * 1024,  # 2MB
-            is_encrypted=True
+            id=session_row[0],
+            name=session_row[1],
+            creation_date=session_row[2],
+            last_used_date=session_row[3],
+            size=session_row[4],
+            is_encrypted=session_row[5],
+            encrypted_data=session_row[6]
         )
-        
         return TSMService_pb2.GetSessionDetailsResponse(session=session)
+
+    def StartSRPAuthentication(self, request, context):
+        """
+        Starts the SRP authentication process.
+        """
+        username = request.username
+        # In a real application, you would look up the user's password from a database.
+        # For this example, we'll just use a dummy password.
+        password = "password"
+        srp = HardwareRootedSRP(username, password)
+        self.srp_sessions[username] = srp
+        return TSMService_pb2.SRPChallengeResponse(salt=srp.salt, serverB=srp.get_server_public_key().to_bytes(256, 'big'))
+
+    def VerifySRP(self, request, context):
+        """
+        Verifies the client's SRP proof.
+        """
+        username = "user" # In a real app, you'd get this from the request or a session cookie
+        srp = self.srp_sessions.get(username)
+        if not srp:
+            context.set_code(grpc.StatusCode.FAILED_PRECONDITION)
+            context.set_details("SRP session not found.")
+            return TSMService_pb2.SRPVerifyResponse()
+
+        client_A = int.from_bytes(request.clientA, 'big')
+        session_key = srp.process_client_hello(client_A)
+
+        # At this point, the session key is established.
+        # The client would then send a proof (M1), and the server would verify it and send its own proof (M2).
+        # For simplicity, we'll just return a dummy M2.
+        return TSMService_pb2.SRPVerifyResponse(m2=b"server_proof")
 
     def EncryptedSearch(self, request, context):
         """
@@ -175,9 +236,21 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             # Execute the homomorphic search
             # This performs mathematical operations on encrypted values
             # to find matches without decrypting anything
+
+            # For now, we'll just search the in-memory database.
+            # In a real implementation, this would need to be adapted to work with the SQLite database.
+            plain_database = {
+                "session_alpha": 1,
+                "session_bravo": 2,
+                "session_charlie": 3,
+                "session_delta": 4,
+                "session_echo": 5
+            }
+            encrypted_database = self.search_prototype.generate_encrypted_database(plain_database)
+
             matching_key = self.search_prototype.execute_search(
                 encrypted_query, 
-                self.encrypted_database
+                encrypted_database
             )
             
             # Log for debugging (in production, use structured logging)
