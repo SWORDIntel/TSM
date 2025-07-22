@@ -39,31 +39,32 @@ class HomomorphicSearchPrototype:
         """
         return self.public_key.encrypt(term)
 
-    def execute_search(self, encrypted_query, encrypted_database):
+    def execute_search(self, encrypted_queries, encrypted_database, operator):
         """
-        Takes the encrypted query and database, performs a homomorphic
-        comparison (e.g., encrypted subtraction, where a result of encrypted
-        zero indicates a match), and returns the plaintext key of the
-        matching item.
+        Takes the encrypted queries and database, performs a homomorphic
+        comparison, and returns the plaintext keys of the matching items.
 
         Args:
-            encrypted_query (Paillier.EncryptedNumber): The encrypted search term.
+            encrypted_queries (list): A list of encrypted search terms.
             encrypted_database (dict): The encrypted database.
+            operator (str): The boolean operator to use ('AND' or 'OR').
 
         Returns:
-            str: The plaintext key of the matching item, or None if no match is found.
+            list: A list of plaintext keys of the matching items.
         """
+        matching_keys = []
         for key, encrypted_value in encrypted_database.items():
-            # Homomorphically subtract the query from the database value
-            encrypted_diff = encrypted_value - encrypted_query
+            matches = []
+            for encrypted_query in encrypted_queries:
+                encrypted_diff = encrypted_value - encrypted_query
+                decrypted_diff = self.private_key.decrypt(encrypted_diff)
+                matches.append(decrypted_diff == 0)
 
-            # Decrypt the difference
-            decrypted_diff = self.private_key.decrypt(encrypted_diff)
-
-            # If the difference is zero, we have a match
-            if decrypted_diff == 0:
-                return key
-        return None
+            if operator == 'AND' and all(matches):
+                matching_keys.append(key)
+            elif operator == 'OR' and any(matches):
+                matching_keys.append(key)
+        return matching_keys
 
 if __name__ == '__main__':
     # Create an instance of the prototype
@@ -71,28 +72,30 @@ if __name__ == '__main__':
 
     # Create a sample database
     plain_database = {
-        "alpha": 1,
-        "bravo": 2,
-        "charlie": 3,
-        "delta": 4,
-        "echo": 5
+        "alpha": [1, 2],
+        "bravo": [2, 3],
+        "charlie": [3, 4],
+        "delta": [4, 5],
+        "echo": [5, 6]
     }
 
     # Encrypt the database
-    encrypted_database = prototype.generate_encrypted_database(plain_database)
+    encrypted_database = {}
+    for key, values in plain_database.items():
+        encrypted_database[key] = [prototype.public_key.encrypt(v) for v in values]
 
-    # Generate an encrypted query
-    search_term = 3
-    encrypted_query = prototype.generate_encrypted_query(search_term)
+    # Generate encrypted queries
+    search_terms = [3, 4]
+    encrypted_queries = [prototype.generate_encrypted_query(term) for term in search_terms]
 
-    # Execute the search
-    matching_key = prototype.execute_search(encrypted_query, encrypted_database)
+    # Execute the search with AND operator
+    matching_keys_and = prototype.execute_search(encrypted_queries, encrypted_database, 'AND')
+    print(f"Found matches for search terms {search_terms} with AND operator at keys: {matching_keys_and}")
+    assert "charlie" in matching_keys_and
 
-    # Print the result
-    if matching_key:
-        print(f"Found a match for search term {search_term} at key: {matching_key}")
-    else:
-        print(f"No match found for search term {search_term}")
-
-    # Verify that the correct key was found
-    assert matching_key == "charlie"
+    # Execute the search with OR operator
+    matching_keys_or = prototype.execute_search(encrypted_queries, encrypted_database, 'OR')
+    print(f"Found matches for search terms {search_terms} with OR operator at keys: {matching_keys_or}")
+    assert "bravo" in matching_keys_or
+    assert "charlie" in matching_keys_or
+    assert "delta" in matching_keys_or

@@ -72,7 +72,7 @@ class TSMServiceStub(object):
                 _registered_method=True)
         self.EncryptedSearch = channel.unary_unary(
                 '/tsm.TSMService/EncryptedSearch',
-                request_serializer=TSMService__pb2.SearchRequest.SerializeToString,
+                request_serializer=TSMService__pb2.EncryptedSearchRequest.SerializeToString,
                 response_deserializer=TSMService__pb2.SearchResponse.FromString,
                 _registered_method=True)
         self.StartZKAuthentication = channel.unary_unary(
@@ -225,7 +225,7 @@ def add_TSMServiceServicer_to_server(servicer, server):
             ),
             'EncryptedSearch': grpc.unary_unary_rpc_method_handler(
                     servicer.EncryptedSearch,
-                    request_deserializer=TSMService__pb2.SearchRequest.FromString,
+                    request_deserializer=TSMService__pb2.EncryptedSearchRequest.FromString,
                     response_serializer=TSMService__pb2.SearchResponse.SerializeToString,
             ),
             'StartZKAuthentication': grpc.unary_unary_rpc_method_handler(
@@ -464,7 +464,7 @@ class TSMService(object):
             request,
             target,
             '/tsm.TSMService/EncryptedSearch',
-            TSMService__pb2.SearchRequest.SerializeToString,
+            TSMService__pb2.EncryptedSearchRequest.SerializeToString,
             TSMService__pb2.SearchResponse.FromString,
             options,
             channel_credentials,

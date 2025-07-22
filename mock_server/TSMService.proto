@@ -26,7 +26,7 @@ service TSMService {
   rpc VerifySRP(SRPVerifyRequest) returns (SRPVerifyResponse);
 
   // Performs a search on encrypted data
-  rpc EncryptedSearch(SearchRequest) returns (SearchResponse);
+  rpc EncryptedSearch(EncryptedSearchRequest) returns (SearchResponse);
 
   // Starts the ZK-proof authentication process
   rpc StartZKAuthentication(ZKAuthenticationRequest) returns (ZKChallengeResponse);
@@ -102,14 +102,21 @@ message SRPVerifyResponse {
   bytes m2 = 1;
 }
 
+// Enum for boolean operations
+enum BooleanOperator {
+  AND = 0;
+  OR = 1;
+}
+
 // Request for encrypted search
-message SearchRequest {
-  bytes encrypted_query = 1;
+message EncryptedSearchRequest {
+  repeated string encrypted_queries = 1;
+  BooleanOperator operator = 2;
 }
 
 // Response for encrypted search
 message SearchResponse {
-  repeated string session_locators = 1;
+  repeated string matching_session_ids = 1;
 }
 
 // A single TSM session's metadata
