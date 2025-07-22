@@ -15,6 +15,8 @@ from identity.hardware_rooted_srp import HardwareRootedSRP
 from zk_session_proof import ZKSessionProof
 from zkp_utils import serialize_point, deserialize_point
 import json
+from storage.factory import StorageFactory
+from replication import ReplicationManager
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     """
@@ -46,6 +48,11 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         self.srp_sessions = {}
         # In-memory store for ZK sessions
         self.zk_sessions = {}
+
+        # Initialize storage backends
+        self.storage_factory = StorageFactory()
+        self.storage_backends = self.storage_factory.load_from_config('storage_config.json')
+        self.replication_manager = ReplicationManager(self.storage_backends)
 
         # Generate some sample sessions and store them in the database
         session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
@@ -273,6 +280,42 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details("Search operation failed")
             return TSMService_pb2.SearchResponse()
+
+    def GetStorageConfiguration(self, request, context):
+        with open('storage_config.json', 'r') as f:
+            config_data = json.load(f)
+
+        backends = []
+        for backend_config in config_data:
+            backends.append(TSMService_pb2.BackendConfig(
+                type=backend_config['type'],
+                parameters=backend_config
+            ))
+        return TSMService_pb2.StorageConfiguration(backends=backends)
+
+    def AddStorageBackend(self, request, context):
+        try:
+            with open('storage_config.json', 'r+') as f:
+                config_data = json.load(f)
+                config_data.append(request.backend)
+                f.seek(0)
+                json.dump(config_data, f, indent=2)
+            return TSMService_pb2.StorageOperationResponse(success=True, message="Backend added successfully.")
+        except Exception as e:
+            return TSMService_pb2.StorageOperationResponse(success=False, message=str(e))
+
+    def RemoveStorageBackend(self, request, context):
+        try:
+            with open('storage_config.json', 'r+') as f:
+                config_data = json.load(f)
+                config_data = [b for b in config_data if b['type'] != request.backend_id]
+                f.seek(0)
+                f.truncate()
+                json.dump(config_data, f, indent=2)
+            return TSMService_pb2.StorageOperationResponse(success=True, message="Backend removed successfully.")
+        except Exception as e:
+            return TSMService_pb2.StorageOperationResponse(success=False, message=str(e))
+
 
 from ai_interceptor import AISecurityInterceptor
 

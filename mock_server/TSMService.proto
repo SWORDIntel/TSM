@@ -39,6 +39,11 @@ service TSMService {
 
   // Retrieves system performance and status metrics
   rpc GetMetrics(Empty) returns (SystemMetrics);
+
+  // Storage Management
+  rpc GetStorageConfiguration(Empty) returns (StorageConfiguration);
+  rpc AddStorageBackend(AddStorageBackendRequest) returns (StorageOperationResponse);
+  rpc RemoveStorageBackend(RemoveStorageBackendRequest) returns (StorageOperationResponse);
 }
 
 // Represents an empty message
@@ -174,4 +179,27 @@ message ZKProofRequest {
 // ZK proof response
 message ZKProofResponse {
   string session_token = 1;
+}
+
+// Storage Configuration
+message BackendConfig {
+  string type = 1;
+  map<string, string> parameters = 2;
+}
+
+message StorageConfiguration {
+  repeated BackendConfig backends = 1;
+}
+
+message AddStorageBackendRequest {
+  BackendConfig backend = 1;
+}
+
+message RemoveStorageBackendRequest {
+  string backend_id = 1;
+}
+
+message StorageOperationResponse {
+  bool success = 1;
+  string message = 2;
 }

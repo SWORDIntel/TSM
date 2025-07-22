@@ -12,9 +12,10 @@ import grpc
 import TSMService_pb2
 import TSMService_pb2_grpc
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Static
+from textual.widgets import Header, Footer, Static, Button
 from textual.containers import Horizontal, Vertical
 from textual.widget import Widget
+from textual.screen import Screen
 from yubikey import YubiKeyManager
 from homomorphic_search import HomomorphicSearchPrototype
 from datetime import datetime
@@ -33,6 +34,27 @@ class LogViewer(Static):
 class StatusBar(Static):
     """A widget to display status information."""
     pass
+
+
+class StorageManagementScreen(Screen):
+    """A screen for managing storage backends."""
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Static("Storage Management", id="title")
+        yield Vertical(
+            Static("Loading...", id="storage_list"),
+            Horizontal(
+                Button("Add Backend", id="add_backend"),
+                Button("Remove Backend", id="remove_backend"),
+                id="buttons",
+            ),
+        )
+        yield Footer()
+
+    def on_mount(self) -> None:
+        self.query_one("#storage_list").update("Loading storage backends...")
+        self.app.list_storage_backends()
 
 
 class TSMDesktop(App):
@@ -70,6 +92,7 @@ class TSMDesktop(App):
         ("p", "provision_yubikey", "Provision YubiKey"),
         ("r", "refresh", "Refresh Sessions"),
         ("c", "clear_log", "Clear Log"),
+        ("m", "manage_storage", "Manage Storage"),
         ("z", "zk_auth", "ZK Auth"),
         ("q", "quit", "Quit"),
     ]
@@ -398,6 +421,42 @@ class TSMDesktop(App):
         if self.channel:
             self.channel.close()
             self.log("Closed connection to TSM server")
+
+    def action_manage_storage(self) -> None:
+        """Push the storage management screen."""
+        self.push_screen(StorageManagementScreen())
+
+    def list_storage_backends(self) -> None:
+        if not self.stub:
+            self.log("Error: Not connected to server")
+            return
+
+        request = TSMService_pb2.Empty()
+        try:
+            self.log("Fetching storage configuration...")
+            response = self.stub.GetStorageConfiguration(request)
+
+            storage_list = "Configured Storage Backends:\n" + "─" * 50 + "\n"
+            for backend in response.backends:
+                storage_list += f"\n- Type: {backend.type}\n"
+                for key, value in backend.parameters.items():
+                    storage_list += f"  {key}: {value}\n"
+
+            self.query_one(StorageManagementScreen).query_one("#storage_list").update(storage_list)
+            self.log(f"Successfully loaded {len(response.backends)} storage backends")
+
+        except grpc.RpcError as e:
+            error_msg = f"Failed to fetch storage configuration: {e.details()}"
+            self.log(error_msg)
+            self.query_one(StorageManagementScreen).query_one("#storage_list").update(f"Error: {error_msg}")
+
+    def add_storage_backend(self, backend_config: TSMService_pb2.BackendConfig) -> None:
+        # Placeholder for adding a backend
+        pass
+
+    def remove_storage_backend(self, backend_id: str) -> None:
+        # Placeholder for removing a backend
+        pass
 
 
 class VirtualSessionContainer:
