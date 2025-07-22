@@ -1,0 +1,6 @@
+[
+  {
+    "type": "local",
+    "base_path": "/tmp/tsm_storage"
+  }
+]
