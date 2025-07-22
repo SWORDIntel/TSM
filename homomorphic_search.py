@@ -11,60 +11,47 @@ class HomomorphicSearchPrototype:
         """
         self.public_key, self.private_key = paillier.generate_paillier_keypair()
 
-    def generate_encrypted_database(self, plain_database):
+    def encrypt_keyword(self, keyword):
         """
-        Creates a simple dictionary where keys are plaintext words and values
-        are their homomorphically encrypted representations.
+        Encrypts a keyword using a simple XOR cipher.
 
         Args:
-            plain_database (dict): A dictionary with plaintext keys and values.
+            keyword (str): The keyword to encrypt.
 
         Returns:
-            dict: A dictionary with the same keys, but with encrypted values.
+            bytes: The encrypted keyword.
         """
-        encrypted_database = {}
-        for key, value in plain_database.items():
-            encrypted_database[key] = self.public_key.encrypt(value)
-        return encrypted_database
+        key = b'secret_key'
+        encrypted_keyword = bytearray()
+        for i in range(len(keyword)):
+            encrypted_keyword.append(keyword[i] ^ key[i % len(key)])
+        return bytes(encrypted_keyword)
 
-    def generate_encrypted_query(self, term):
+    def execute_search(self, encrypted_keywords, encrypted_inverted_index, operator):
         """
-        Takes a plaintext search term and returns its encrypted form.
+        Takes the encrypted keywords and inverted index, performs a lookup,
+        and returns the session IDs of the matching items.
 
         Args:
-            term (int): The plaintext search term.
-
-        Returns:
-            Paillier.EncryptedNumber: The encrypted search term.
-        """
-        return self.public_key.encrypt(term)
-
-    def execute_search(self, encrypted_queries, encrypted_database, operator):
-        """
-        Takes the encrypted queries and database, performs a homomorphic
-        comparison, and returns the plaintext keys of the matching items.
-
-        Args:
-            encrypted_queries (list): A list of encrypted search terms.
-            encrypted_database (dict): The encrypted database.
+            encrypted_keywords (list): A list of encrypted keywords.
+            encrypted_inverted_index (dict): The encrypted inverted index.
             operator (str): The boolean operator to use ('AND' or 'OR').
 
         Returns:
-            list: A list of plaintext keys of the matching items.
+            list: A list of session IDs of the matching items.
         """
-        matching_keys = []
-        for key, encrypted_value in encrypted_database.items():
-            matches = []
-            for encrypted_query in encrypted_queries:
-                encrypted_diff = encrypted_value - encrypted_query
-                decrypted_diff = self.private_key.decrypt(encrypted_diff)
-                matches.append(decrypted_diff == 0)
+        results = []
+        for encrypted_keyword in encrypted_keywords:
+            if encrypted_keyword in encrypted_inverted_index:
+                results.append(set(encrypted_inverted_index[encrypted_keyword]))
 
-            if operator == 'AND' and all(matches):
-                matching_keys.append(key)
-            elif operator == 'OR' and any(matches):
-                matching_keys.append(key)
-        return matching_keys
+        if not results:
+            return []
+
+        if operator == 'AND':
+            return list(set.intersection(*results))
+        elif operator == 'OR':
+            return list(set.union(*results))
 
 if __name__ == '__main__':
     # Create an instance of the prototype

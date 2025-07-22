@@ -49,15 +49,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
 
         # Generate some sample sessions and store them in the database
         session_data = {
-            "session_alpha": [1, 2, 3],
-            "session_bravo": [2, 3, 4],
-            "session_charlie": [3, 4, 5],
-            "session_delta": [4, 5, 6],
-            "session_echo": [5, 6, 7]
+            "session_alpha": ["apple", "banana", "cherry"],
+            "session_bravo": ["banana", "cherry", "date"],
+            "session_charlie": ["cherry", "date", "elderberry"],
+            "session_delta": ["date", "elderberry", "fig"],
+            "session_echo": ["elderberry", "fig", "grape"]
         }
-        for session_id, data in session_data.items():
-            for item in data:
-                self.index_manager.update_index(session_id, item)
+        for session_id, keywords in session_data.items():
+            self.index_manager.update_index(session_id, keywords)
         
         print(f"TSM Service initialized with {len(session_names)} encrypted sessions in the database")
 
@@ -243,11 +242,11 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         in the database - everything remains encrypted throughout the process.
         """
         try:
-            encrypted_queries = [pickle.loads(q.encode('latin-1')) for q in request.encrypted_queries]
+            encrypted_keywords = [q.encode('latin-1') for q in request.encrypted_queries]
             operator = TSMService_pb2.BooleanOperator.Name(request.operator)
-            encrypted_index = self.index_manager.get_index()
+            encrypted_inverted_index = self.index_manager.get_inverted_index()
             
-            matching_session_ids = self.search_prototype.execute_search(encrypted_queries, encrypted_index, operator)
+            matching_session_ids = self.search_prototype.execute_search(encrypted_keywords, encrypted_inverted_index, operator)
             
             return TSMService_pb2.SearchResponse(matching_session_ids=matching_session_ids)
                 
@@ -292,7 +291,6 @@ def serve():
     print("TSM gRPC server started on port 50051...")
     print("Ready to handle encrypted search requests")
 
-    
 
     try:
         # Keep the server running

@@ -24,16 +24,21 @@ class EncryptedIndexManager:
         with open('public_key.pkl', 'wb') as f_pk:
             pickle.dump(self.search_prototype.public_key, f_pk)
 
-    def update_index(self, session_id, data):
-        # For simplicity, we'll use the session ID as the key and the data as the value.
-        # In a real-world scenario, you would extract keywords from the data.
-        if session_id not in self.encrypted_index:
-            self.encrypted_index[session_id] = []
-        self.encrypted_index[session_id].append(self.search_prototype.public_key.encrypt(data))
+    def __init__(self, index_path='encrypted_inverted_index.pkl'):
+        self.index_path = index_path
+        self.search_prototype = HomomorphicSearchPrototype()
+        self.encrypted_inverted_index = self._load_index()
+
+    def update_index(self, session_id, keywords):
+        for keyword in keywords:
+            encrypted_keyword = self.search_prototype.encrypt_keyword(keyword)
+            if encrypted_keyword not in self.encrypted_inverted_index:
+                self.encrypted_inverted_index[encrypted_keyword] = []
+            self.encrypted_inverted_index[encrypted_keyword].append(session_id)
         self._save_index()
 
-    def get_index(self):
-        return self.encrypted_index
+    def get_inverted_index(self):
+        return self.encrypted_inverted_index
 
     def get_search_prototype(self):
         return self.search_prototype
