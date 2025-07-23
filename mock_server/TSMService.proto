@@ -109,12 +109,19 @@ message SRPVerifyResponse {
 
 // Request for encrypted search
 message EncryptedSearchRequest {
-  string encrypted_query = 1;
+  enum BooleanOperator {
+    AND = 0;
+    OR = 1;
+  }
+  repeated string encrypted_queries = 1;
+  BooleanOperator operator = 2;
 }
 
 // Response for encrypted search
 message SearchResponse {
   repeated string matching_session_ids = 1;
+  int32 total_matches = 2;
+  double search_duration_ms = 3;
 }
 
 // A single TSM session's metadata

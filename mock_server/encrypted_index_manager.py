@@ -2,12 +2,23 @@ import pickle
 from homomorphic_search import HomomorphicSearchPrototype
 
 class EncryptedIndexManager:
-    def __init__(self, index_path='encrypted_index.pkl'):
+    def __init__(self, index_path='encrypted_index.pkl', search_prototype=None):
         self.index_path = index_path
-        self.search_prototype = HomomorphicSearchPrototype()
+        self._search_prototype_injected = search_prototype is not None
+        if search_prototype:
+            self.search_prototype = search_prototype
+        else:
+            self.search_prototype = HomomorphicSearchPrototype()
         self.encrypted_index = self._load_index()
 
     def _load_index(self):
+        if self._search_prototype_injected:
+            try:
+                with open(self.index_path, 'rb') as f:
+                    index = pickle.load(f)
+                return index
+            except FileNotFoundError:
+                return {}
         try:
             with open(self.index_path, 'rb') as f:
                 index = pickle.load(f)

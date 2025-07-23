@@ -28,13 +28,13 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     providing functionality.
     """
     
-    def __init__(self):
+    def __init__(self, search_prototype=None):
         # Initialize the database
         self.db = Database()
 
         # Initialize the homomorphic search prototype
         # This creates the encryption keys and sets up the cryptographic framework
-        self.index_manager = EncryptedIndexManager()
+        self.index_manager = EncryptedIndexManager(search_prototype=search_prototype)
         self.search_prototype = self.index_manager.get_search_prototype()
         
         # Initialize the quantum-resistant crypto module
@@ -255,24 +255,22 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         in the database - everything remains encrypted throughout the process.
         """
         try:
-            encrypted_query = pickle.loads(request.encrypted_query.encode('latin-1'))
+            encrypted_queries = [pickle.loads(q.encode('latin-1')) for q in request.encrypted_queries]
             encrypted_index = self.index_manager.get_index()
             
             matching_session_ids = []
-            for session_id, encrypted_value in encrypted_index.items():
-                # Homomorphically subtract the query from the database value
-                encrypted_diff = encrypted_value - encrypted_query
-                
-                # The server can't decrypt the difference, so it sends it to the client.
-                # In a real-world scenario, the client would decrypt the difference and
-                # determine if it's zero.
-                # For this prototype, we'll simulate the client-side decryption here.
-                private_key = self.search_prototype.private_key
-                decrypted_diff = private_key.decrypt(encrypted_diff)
-                
-                if decrypted_diff == 0:
-                    matching_session_ids.append(session_id)
-            
+            if request.operator == TSMService_pb2.EncryptedSearchRequest.AND:
+                for session_id, encrypted_value in encrypted_index.items():
+                    encrypted_diff_sum = self.search_prototype.public_key.encrypt(0)
+                    for encrypted_query in encrypted_queries:
+                        encrypted_diff_sum += encrypted_value - encrypted_query
+
+                    decrypted_diff = self.search_prototype.private_key.decrypt(encrypted_diff_sum)
+                    if decrypted_diff == 0:
+                        matching_session_ids.append(session_id)
+            elif request.operator == TSMService_pb2.EncryptedSearchRequest.OR:
+                matching_session_ids = self.search_prototype.execute_or_search(encrypted_queries, encrypted_index)
+
             return TSMService_pb2.SearchResponse(matching_session_ids=matching_session_ids)
                 
         except Exception as e:
@@ -319,10 +317,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
 
 from ai_interceptor import AISecurityInterceptor
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 def serve():
     """
     Starts the gRPC server and handles incoming requests.
     """
+    logging.info("Initializing TSM service...")
     # Initialize the AI security module and the interceptor
     security_ai = SessionSecurityAI()
     ai_interceptor = AISecurityInterceptor(security_ai)
@@ -340,26 +342,31 @@ def serve():
     )
     
     # Register our service implementation
+    logging.info("Creating TSM service instance...")
     service = TSMService()
+    logging.info("TSM service instance created.")
     TSMService_pb2_grpc.add_TSMServiceServicer_to_server(service, server)
     
     # Bind to port 50051 on all interfaces
     # In production, consider using TLS with server.add_secure_port()
+    logging.info("Adding insecure port...")
     server.add_insecure_port('[::]:50051')
+    logging.info("Insecure port added.")
     
     # Start the server
+    logging.info("Starting server...")
     server.start()
-    print("TSM gRPC server started on port 50051...")
-    print("Ready to handle encrypted search requests")
+    logging.info("TSM gRPC server started on port 50051...")
+    logging.info("Ready to handle encrypted search requests")
     
 
     try:
         # Keep the server running
         server.wait_for_termination()
     except KeyboardInterrupt:
-        print("\nShutting down TSM server...")
+        logging.info("\nShutting down TSM server...")
         server.stop(grace_period=5)  # Give 5 seconds for cleanup
-        print("Server stopped")
+        logging.info("Server stopped")
 
 if __name__ == '__main__':
     serve()
