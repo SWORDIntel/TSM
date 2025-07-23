@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10TSMService.proto\x12\x03tsm\"\x07\n\x05\x45mpty\"+\n\x15GetSessionDataRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"0\n\x16GetSessionDataResponse\x12\x16\n\x0e\x64\x65\x63rypted_data\x18\x01 \x01(\x0c\"6\n\x15\x41nalyzeSessionRequest\x12\x1d\n\x07session\x18\x01 \x01(\x0b\x32\x0c.tsm.Session\"=\n\x16\x41nalyzeSessionResponse\x12#\n\x06report\x18\x01 \x01(\x0b\x32\x13.tsm.SecurityReport\"I\n\x0eSecurityReport\x12\x12\n\nrisk_score\x18\x01 \x01(\x02\x12\x0f\n\x07threats\x18\x02 \x03(\t\x12\x12\n\nrecommends\x18\x03 \x03(\t\".\n\x18GetSessionDetailsRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\":\n\x19GetSessionDetailsResponse\x12\x1d\n\x07session\x18\x01 \x01(\x0b\x32\x0c.tsm.Session\",\n\x18SRPAuthenticationRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"5\n\x14SRPChallengeResponse\x12\x0c\n\x04salt\x18\x01 \x01(\x0c\x12\x0f\n\x07serverB\x18\x02 \x01(\x0c\"#\n\x10SRPVerifyRequest\x12\x0f\n\x07\x63lientA\x18\x01 \x01(\x0c\"\x1f\n\x11SRPVerifyResponse\x12\n\n\x02m2\x18\x01 \x01(\x0c\"1\n\x16\x45ncryptedSearchRequest\x12\x17\n\x0f\x65ncrypted_query\x18\x01 \x01(\t\".\n\x0eSearchResponse\x12\x1c\n\x14matching_session_ids\x18\x01 \x03(\t\"v\n\x07Session\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x19\n\x11\x63reated_timestamp\x18\x03 \x01(\x03\x12\x12\n\nsize_bytes\x18\x04 \x01(\x03\x12\x14\n\x0cis_encrypted\x18\x05 \x01(\x08\x12\x0c\n\x04tags\x18\x06 \x03(\t\"-\n\x0bSessionList\x12\x1e\n\x08sessions\x18\x01 \x03(\x0b\x32\x0c.tsm.Session\"#\n\rSwitchRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"2\n\x0eSwitchResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"#\n\rBackupRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"\x1b\n\x0b\x42\x61\x63kupChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"_\n\rSystemMetrics\x12\x19\n\x11\x63pu_usage_percent\x18\x01 \x01(\x02\x12\x1a\n\x12memory_usage_bytes\x18\x02 \x01(\x03\x12\x17\n\x0f\x61\x63tive_sessions\x18\x03 \x01(\x05\"+\n\x17ZKAuthenticationRequest\x12\x10\n\x08username\x18\x01 \x01(\t\" \n\x13ZKChallengeResponse\x12\t\n\x01H\x18\x01 \x01(\t\"1\n\x0eZKProofRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05proof\x18\x02 \x01(\t\"(\n\x0fZKProofResponse\x12\x15\n\rsession_token\x18\x01 \x01(\t\"\x88\x01\n\rBackendConfig\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x36\n\nparameters\x18\x02 \x03(\x0b\x32\".tsm.BackendConfig.ParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"<\n\x14StorageConfiguration\x12$\n\x08\x62\x61\x63kends\x18\x01 \x03(\x0b\x32\x12.tsm.BackendConfig\"?\n\x18\x41\x64\x64StorageBackendRequest\x12#\n\x07\x62\x61\x63kend\x18\x01 \x01(\x0b\x32\x12.tsm.BackendConfig\"1\n\x1bRemoveStorageBackendRequest\x12\x12\n\nbackend_id\x18\x01 \x01(\t\"<\n\x18StorageOperationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\x95\x08\n\nTSMService\x12,\n\x0cListSessions\x12\n.tsm.Empty\x1a\x10.tsm.SessionList\x12I\n\x0eGetSessionData\x12\x1a.tsm.GetSessionDataRequest\x1a\x1b.tsm.GetSessionDataResponse\x12I\n\x0e\x41nalyzeSession\x12\x1a.tsm.AnalyzeSessionRequest\x1a\x1b.tsm.AnalyzeSessionResponse\x12\x38\n\rSwitchSession\x12\x12.tsm.SwitchRequest\x1a\x13.tsm.SwitchResponse\x12R\n\x11GetSessionDetails\x12\x1d.tsm.GetSessionDetailsRequest\x1a\x1e.tsm.GetSessionDetailsResponse\x12R\n\x16StartSRPAuthentication\x12\x1d.tsm.SRPAuthenticationRequest\x1a\x19.tsm.SRPChallengeResponse\x12:\n\tVerifySRP\x12\x15.tsm.SRPVerifyRequest\x1a\x16.tsm.SRPVerifyResponse\x12\x43\n\x0f\x45ncryptedSearch\x12\x1b.tsm.EncryptedSearchRequest\x1a\x13.tsm.SearchResponse\x12O\n\x15StartZKAuthentication\x12\x1c.tsm.ZKAuthenticationRequest\x1a\x18.tsm.ZKChallengeResponse\x12:\n\rVerifyZKProof\x12\x13.tsm.ZKProofRequest\x1a\x14.tsm.ZKProofResponse\x12\x37\n\rBackupSession\x12\x12.tsm.BackupRequest\x1a\x10.tsm.BackupChunk0\x01\x12,\n\nGetMetrics\x12\n.tsm.Empty\x1a\x12.tsm.SystemMetrics\x12@\n\x17GetStorageConfiguration\x12\n.tsm.Empty\x1a\x19.tsm.StorageConfiguration\x12Q\n\x11\x41\x64\x64StorageBackend\x12\x1d.tsm.AddStorageBackendRequest\x1a\x1d.tsm.StorageOperationResponse\x12W\n\x14RemoveStorageBackend\x12 .tsm.RemoveStorageBackendRequest\x1a\x1d.tsm.StorageOperationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10TSMService.proto\x12\x03tsm\"\x07\n\x05\x45mpty\"+\n\x15GetSessionDataRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"0\n\x16GetSessionDataResponse\x12\x16\n\x0e\x64\x65\x63rypted_data\x18\x01 \x01(\x0c\"6\n\x15\x41nalyzeSessionRequest\x12\x1d\n\x07session\x18\x01 \x01(\x0b\x32\x0c.tsm.Session\"=\n\x16\x41nalyzeSessionResponse\x12#\n\x06report\x18\x01 \x01(\x0b\x32\x13.tsm.SecurityReport\"I\n\x0eSecurityReport\x12\x12\n\nrisk_score\x18\x01 \x01(\x02\x12\x0f\n\x07threats\x18\x02 \x03(\t\x12\x12\n\nrecommends\x18\x03 \x03(\t\".\n\x18GetSessionDetailsRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\":\n\x19GetSessionDetailsResponse\x12\x1d\n\x07session\x18\x01 \x01(\x0b\x32\x0c.tsm.Session\",\n\x18SRPAuthenticationRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"5\n\x14SRPChallengeResponse\x12\x0c\n\x04salt\x18\x01 \x01(\x0c\x12\x0f\n\x07serverB\x18\x02 \x01(\x0c\"#\n\x10SRPVerifyRequest\x12\x0f\n\x07\x63lientA\x18\x01 \x01(\x0c\"\x1f\n\x11SRPVerifyResponse\x12\n\n\x02m2\x18\x01 \x01(\x0c\"\x96\x01\n\x16\x45ncryptedSearchRequest\x12\x19\n\x11\x65ncrypted_queries\x18\x01 \x03(\t\x12=\n\x08operator\x18\x02 \x01(\x0e\x32+.tsm.EncryptedSearchRequest.BooleanOperator\"\"\n\x0f\x42ooleanOperator\x12\x07\n\x03\x41ND\x10\x00\x12\x06\n\x02OR\x10\x01\".\n\x0eSearchResponse\x12\x1c\n\x14matching_session_ids\x18\x01 \x03(\t\"v\n\x07Session\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x19\n\x11\x63reated_timestamp\x18\x03 \x01(\x03\x12\x12\n\nsize_bytes\x18\x04 \x01(\x03\x12\x14\n\x0cis_encrypted\x18\x05 \x01(\x08\x12\x0c\n\x04tags\x18\x06 \x03(\t\"-\n\x0bSessionList\x12\x1e\n\x08sessions\x18\x01 \x03(\x0b\x32\x0c.tsm.Session\"#\n\rSwitchRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"2\n\x0eSwitchResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"#\n\rBackupRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\"\x1b\n\x0b\x42\x61\x63kupChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"_\n\rSystemMetrics\x12\x19\n\x11\x63pu_usage_percent\x18\x01 \x01(\x02\x12\x1a\n\x12memory_usage_bytes\x18\x02 \x01(\x03\x12\x17\n\x0f\x61\x63tive_sessions\x18\x03 \x01(\x05\"+\n\x17ZKAuthenticationRequest\x12\x10\n\x08username\x18\x01 \x01(\t\" \n\x13ZKChallengeResponse\x12\t\n\x01H\x18\x01 \x01(\t\"1\n\x0eZKProofRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05proof\x18\x02 \x01(\t\"(\n\x0fZKProofResponse\x12\x15\n\rsession_token\x18\x01 \x01(\t\"\x88\x01\n\rBackendConfig\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x36\n\nparameters\x18\x02 \x03(\x0b\x32\".tsm.BackendConfig.ParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"<\n\x14StorageConfiguration\x12$\n\x08\x62\x61\x63kends\x18\x01 \x03(\x0b\x32\x12.tsm.BackendConfig\"?\n\x18\x41\x64\x64StorageBackendRequest\x12#\n\x07\x62\x61\x63kend\x18\x01 \x01(\x0b\x32\x12.tsm.BackendConfig\"1\n\x1bRemoveStorageBackendRequest\x12\x12\n\nbackend_id\x18\x01 \x01(\t\"<\n\x18StorageOperationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\x95\x08\n\nTSMService\x12,\n\x0cListSessions\x12\n.tsm.Empty\x1a\x10.tsm.SessionList\x12I\n\x0eGetSessionData\x12\x1a.tsm.GetSessionDataRequest\x1a\x1b.tsm.GetSessionDataResponse\x12I\n\x0e\x41nalyzeSession\x12\x1a.tsm.AnalyzeSessionRequest\x1a\x1b.tsm.AnalyzeSessionResponse\x12\x38\n\rSwitchSession\x12\x12.tsm.SwitchRequest\x1a\x13.tsm.SwitchResponse\x12R\n\x11GetSessionDetails\x12\x1d.tsm.GetSessionDetailsRequest\x1a\x1e.tsm.GetSessionDetailsResponse\x12R\n\x16StartSRPAuthentication\x12\x1d.tsm.SRPAuthenticationRequest\x1a\x19.tsm.SRPChallengeResponse\x12:\n\tVerifySRP\x12\x15.tsm.SRPVerifyRequest\x1a\x16.tsm.SRPVerifyResponse\x12\x43\n\x0f\x45ncryptedSearch\x12\x1b.tsm.EncryptedSearchRequest\x1a\x13.tsm.SearchResponse\x12O\n\x15StartZKAuthentication\x12\x1c.tsm.ZKAuthenticationRequest\x1a\x18.tsm.ZKChallengeResponse\x12:\n\rVerifyZKProof\x12\x13.tsm.ZKProofRequest\x1a\x14.tsm.ZKProofResponse\x12\x37\n\rBackupSession\x12\x12.tsm.BackupRequest\x1a\x10.tsm.BackupChunk0\x01\x12,\n\nGetMetrics\x12\n.tsm.Empty\x1a\x12.tsm.SystemMetrics\x12@\n\x17GetStorageConfiguration\x12\n.tsm.Empty\x1a\x19.tsm.StorageConfiguration\x12Q\n\x11\x41\x64\x64StorageBackend\x12\x1d.tsm.AddStorageBackendRequest\x1a\x1d.tsm.StorageOperationResponse\x12W\n\x14RemoveStorageBackend\x12 .tsm.RemoveStorageBackendRequest\x1a\x1d.tsm.StorageOperationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -57,44 +57,46 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SRPVERIFYREQUEST']._serialized_end=567
   _globals['_SRPVERIFYRESPONSE']._serialized_start=569
   _globals['_SRPVERIFYRESPONSE']._serialized_end=600
-  _globals['_ENCRYPTEDSEARCHREQUEST']._serialized_start=602
-  _globals['_ENCRYPTEDSEARCHREQUEST']._serialized_end=651
-  _globals['_SEARCHRESPONSE']._serialized_start=653
-  _globals['_SEARCHRESPONSE']._serialized_end=699
-  _globals['_SESSION']._serialized_start=701
-  _globals['_SESSION']._serialized_end=819
-  _globals['_SESSIONLIST']._serialized_start=821
-  _globals['_SESSIONLIST']._serialized_end=866
-  _globals['_SWITCHREQUEST']._serialized_start=868
-  _globals['_SWITCHREQUEST']._serialized_end=903
-  _globals['_SWITCHRESPONSE']._serialized_start=905
-  _globals['_SWITCHRESPONSE']._serialized_end=955
-  _globals['_BACKUPREQUEST']._serialized_start=957
-  _globals['_BACKUPREQUEST']._serialized_end=992
-  _globals['_BACKUPCHUNK']._serialized_start=994
-  _globals['_BACKUPCHUNK']._serialized_end=1021
-  _globals['_SYSTEMMETRICS']._serialized_start=1023
-  _globals['_SYSTEMMETRICS']._serialized_end=1118
-  _globals['_ZKAUTHENTICATIONREQUEST']._serialized_start=1120
-  _globals['_ZKAUTHENTICATIONREQUEST']._serialized_end=1163
-  _globals['_ZKCHALLENGERESPONSE']._serialized_start=1165
-  _globals['_ZKCHALLENGERESPONSE']._serialized_end=1197
-  _globals['_ZKPROOFREQUEST']._serialized_start=1199
-  _globals['_ZKPROOFREQUEST']._serialized_end=1248
-  _globals['_ZKPROOFRESPONSE']._serialized_start=1250
-  _globals['_ZKPROOFRESPONSE']._serialized_end=1290
-  _globals['_BACKENDCONFIG']._serialized_start=1293
-  _globals['_BACKENDCONFIG']._serialized_end=1429
-  _globals['_BACKENDCONFIG_PARAMETERSENTRY']._serialized_start=1380
-  _globals['_BACKENDCONFIG_PARAMETERSENTRY']._serialized_end=1429
-  _globals['_STORAGECONFIGURATION']._serialized_start=1431
-  _globals['_STORAGECONFIGURATION']._serialized_end=1491
-  _globals['_ADDSTORAGEBACKENDREQUEST']._serialized_start=1493
-  _globals['_ADDSTORAGEBACKENDREQUEST']._serialized_end=1556
-  _globals['_REMOVESTORAGEBACKENDREQUEST']._serialized_start=1558
-  _globals['_REMOVESTORAGEBACKENDREQUEST']._serialized_end=1607
-  _globals['_STORAGEOPERATIONRESPONSE']._serialized_start=1609
-  _globals['_STORAGEOPERATIONRESPONSE']._serialized_end=1669
-  _globals['_TSMSERVICE']._serialized_start=1672
-  _globals['_TSMSERVICE']._serialized_end=2717
+  _globals['_ENCRYPTEDSEARCHREQUEST']._serialized_start=603
+  _globals['_ENCRYPTEDSEARCHREQUEST']._serialized_end=753
+  _globals['_ENCRYPTEDSEARCHREQUEST_BOOLEANOPERATOR']._serialized_start=719
+  _globals['_ENCRYPTEDSEARCHREQUEST_BOOLEANOPERATOR']._serialized_end=753
+  _globals['_SEARCHRESPONSE']._serialized_start=755
+  _globals['_SEARCHRESPONSE']._serialized_end=801
+  _globals['_SESSION']._serialized_start=803
+  _globals['_SESSION']._serialized_end=921
+  _globals['_SESSIONLIST']._serialized_start=923
+  _globals['_SESSIONLIST']._serialized_end=968
+  _globals['_SWITCHREQUEST']._serialized_start=970
+  _globals['_SWITCHREQUEST']._serialized_end=1005
+  _globals['_SWITCHRESPONSE']._serialized_start=1007
+  _globals['_SWITCHRESPONSE']._serialized_end=1057
+  _globals['_BACKUPREQUEST']._serialized_start=1059
+  _globals['_BACKUPREQUEST']._serialized_end=1094
+  _globals['_BACKUPCHUNK']._serialized_start=1096
+  _globals['_BACKUPCHUNK']._serialized_end=1123
+  _globals['_SYSTEMMETRICS']._serialized_start=1125
+  _globals['_SYSTEMMETRICS']._serialized_end=1220
+  _globals['_ZKAUTHENTICATIONREQUEST']._serialized_start=1222
+  _globals['_ZKAUTHENTICATIONREQUEST']._serialized_end=1265
+  _globals['_ZKCHALLENGERESPONSE']._serialized_start=1267
+  _globals['_ZKCHALLENGERESPONSE']._serialized_end=1299
+  _globals['_ZKPROOFREQUEST']._serialized_start=1301
+  _globals['_ZKPROOFREQUEST']._serialized_end=1350
+  _globals['_ZKPROOFRESPONSE']._serialized_start=1352
+  _globals['_ZKPROOFRESPONSE']._serialized_end=1392
+  _globals['_BACKENDCONFIG']._serialized_start=1395
+  _globals['_BACKENDCONFIG']._serialized_end=1531
+  _globals['_BACKENDCONFIG_PARAMETERSENTRY']._serialized_start=1482
+  _globals['_BACKENDCONFIG_PARAMETERSENTRY']._serialized_end=1531
+  _globals['_STORAGECONFIGURATION']._serialized_start=1533
+  _globals['_STORAGECONFIGURATION']._serialized_end=1593
+  _globals['_ADDSTORAGEBACKENDREQUEST']._serialized_start=1595
+  _globals['_ADDSTORAGEBACKENDREQUEST']._serialized_end=1658
+  _globals['_REMOVESTORAGEBACKENDREQUEST']._serialized_start=1660
+  _globals['_REMOVESTORAGEBACKENDREQUEST']._serialized_end=1709
+  _globals['_STORAGEOPERATIONRESPONSE']._serialized_start=1711
+  _globals['_STORAGEOPERATIONRESPONSE']._serialized_end=1771
+  _globals['_TSMSERVICE']._serialized_start=1774
+  _globals['_TSMSERVICE']._serialized_end=2819
 # @@protoc_insertion_point(module_scope)
