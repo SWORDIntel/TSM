@@ -56,6 +56,14 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
 
         # Generate some sample sessions and store them in the database
         session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
+        session_keywords = {
+            "Alpha": ["apple", "banana", "cherry"],
+            "Bravo": ["banana", "cherry", "date"],
+            "Charlie": ["cherry", "date", "elderberry"],
+            "Delta": ["date", "elderberry", "fig"],
+            "Echo": ["elderberry", "fig", "grape"]
+        }
+        
         for i, name in enumerate(session_names):
             session_data = f"This is the secret data for session {name}".encode('utf-8')
             encrypted_data = self.qrc.encrypt(session_data, self.qrc_public_key)
@@ -69,7 +77,11 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
                 tags=["test", f"tag_{i}"]
             )
             self.db.upsert_session(session, pickle.dumps(encrypted_data))
+            
+            # Update both numeric index and keyword index
             self.index_manager.update_index(session_id, i)
+            if name in session_keywords:
+                self.index_manager.update_keyword_index(session_id, session_keywords[name])
         
         print(f"TSM Service initialized with {len(session_names)} encrypted sessions in the database")
 
@@ -255,22 +267,36 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         in the database - everything remains encrypted throughout the process.
         """
         try:
-            encrypted_queries = [pickle.loads(q.encode('latin-1')) for q in request.encrypted_queries]
-            encrypted_index = self.index_manager.get_index()
+            # Check if this is a keyword search or numeric search
+            if hasattr(request, 'search_type') and request.search_type == 'keyword':
+                # Keyword-based search using inverted index
+                encrypted_keywords = [q.encode('latin-1') for q in request.encrypted_queries]
+                operator = TSMService_pb2.BooleanOperator.Name(request.operator)
+                encrypted_inverted_index = self.index_manager.get_inverted_index()
+                
+                matching_session_ids = self.search_prototype.execute_search(
+                    encrypted_keywords, encrypted_inverted_index, operator
+                )
+            else:
+                # Numeric search using homomorphic comparison
+                encrypted_queries = [pickle.loads(q.encode('latin-1')) for q in request.encrypted_queries]
+                encrypted_index = self.index_manager.get_index()
+                
+                matching_session_ids = []
+                if request.operator == TSMService_pb2.EncryptedSearchRequest.AND:
+                    for session_id, encrypted_value in encrypted_index.items():
+                        encrypted_diff_sum = self.search_prototype.public_key.encrypt(0)
+                        for encrypted_query in encrypted_queries:
+                            encrypted_diff_sum += encrypted_value - encrypted_query
+
+                        decrypted_diff = self.search_prototype.private_key.decrypt(encrypted_diff_sum)
+                        if decrypted_diff == 0:
+                            matching_session_ids.append(session_id)
+                elif request.operator == TSMService_pb2.EncryptedSearchRequest.OR:
+                    matching_session_ids = self.search_prototype.execute_or_search(
+                        encrypted_queries, encrypted_index
+                    )
             
-            matching_session_ids = []
-            if request.operator == TSMService_pb2.EncryptedSearchRequest.AND:
-                for session_id, encrypted_value in encrypted_index.items():
-                    encrypted_diff_sum = self.search_prototype.public_key.encrypt(0)
-                    for encrypted_query in encrypted_queries:
-                        encrypted_diff_sum += encrypted_value - encrypted_query
-
-                    decrypted_diff = self.search_prototype.private_key.decrypt(encrypted_diff_sum)
-                    if decrypted_diff == 0:
-                        matching_session_ids.append(session_id)
-            elif request.operator == TSMService_pb2.EncryptedSearchRequest.OR:
-                matching_session_ids = self.search_prototype.execute_or_search(encrypted_queries, encrypted_index)
-
             return TSMService_pb2.SearchResponse(matching_session_ids=matching_session_ids)
                 
         except Exception as e:
@@ -358,7 +384,6 @@ def serve():
     server.start()
     logging.info("TSM gRPC server started on port 50051...")
     logging.info("Ready to handle encrypted search requests")
-    
 
     try:
         # Keep the server running

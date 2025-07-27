@@ -107,14 +107,18 @@ message SRPVerifyResponse {
   bytes m2 = 1;
 }
 
+// Enum for boolean operations
+enum BooleanOperator {
+  AND = 0;
+  OR = 1;
+}
+
 // Request for encrypted search
 message EncryptedSearchRequest {
-  enum BooleanOperator {
-    AND = 0;
-    OR = 1;
-  }
   repeated string encrypted_queries = 1;
   BooleanOperator operator = 2;
+  // Optional: specify search type (for future extensibility)
+  string search_type = 3; // e.g., "keyword" or "numeric"
 }
 
 // Response for encrypted search
@@ -132,6 +136,9 @@ message Session {
   int64 size_bytes = 4;
   bool is_encrypted = 5;
   repeated string tags = 6;
+  // Additional fields for future use
+  int64 last_used_date = 7;
+  string encryption_type = 8; // e.g., "kyber", "paillier"
 }
 
 // A list of sessions
@@ -158,6 +165,9 @@ message BackupRequest {
 // A chunk of a session backup file
 message BackupChunk {
   bytes data = 1;
+  int32 chunk_number = 2;
+  int32 total_chunks = 3;
+  string checksum = 4; // For integrity verification
 }
 
 // System metrics
@@ -165,6 +175,9 @@ message SystemMetrics {
   float cpu_usage_percent = 1;
   int64 memory_usage_bytes = 2;
   int32 active_sessions = 3;
+  int64 total_storage_bytes = 4;
+  int32 encrypted_searches_performed = 5;
+  double average_search_time_ms = 6;
 }
 
 // Request to start ZK authentication
