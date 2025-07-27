@@ -22,7 +22,7 @@ import subprocess
 import sys
 import time
 from abc import ABC, abstractmethod
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -313,7 +313,7 @@ class ManagedServer:
                     logger.error(f"Pre-stop hook failed for {self.config.name}: {e}")
             
             # Cancel health monitoring
-            if self._health_check_task:
+            if self._health_check_task and not self._health_check_task.done():
                 self._health_check_task.cancel()
                 try:
                     await self._health_check_task
@@ -582,26 +582,19 @@ class ServerManager:
         
         return False
     
-    @contextmanager
-    def managed_servers(self, configs: List[ServerConfig]):
-        """Context manager for managing servers"""
-        async def setup():
-            for config in configs:
-                await self.add_server(config)
-            await self.start_all()
-            await self.wait_for_all_ready()
-        
-        async def teardown():
-            await self.stop_all()
-        
-        # Run setup
-        asyncio.run(setup())
+    @asynccontextmanager
+    async def managed_servers(self, configs: List[ServerConfig]):
+        """Async context manager for managing servers"""
+        for config in configs:
+            await self.add_server(config)
+        await self.start_all()
+        if not await self.wait_for_all_ready():
+            raise RuntimeError("Failed to start all managed servers")
         
         try:
             yield self
         finally:
-            # Run teardown
-            asyncio.run(teardown())
+            await self.stop_all()
     
     async def cleanup(self):
         """Clean up resources"""
