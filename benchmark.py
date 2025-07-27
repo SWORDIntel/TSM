@@ -4,14 +4,14 @@ import grpc
 from concurrent import futures
 import sys
 import os
-import threading
+import asyncio
 import statistics
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'mock_server')))
 import TSMService_pb2
 import TSMService_pb2_grpc
 from homomorphic_search import HomomorphicSearchPrototype
-from mock_server.server import TSMService
+from server_manager import ServerManager, TSMServerPresets
 
 def measure_search_time(stub, search_terms, operator=None):
     print(f"Measuring search time for terms: {search_terms} with operator: {operator}")
@@ -31,23 +31,40 @@ def measure_search_time(stub, search_terms, operator=None):
 
     return end_time - start_time
 
-def run_benchmarks():
+async def run_benchmarks_async():
     print("Running benchmarks...")
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    TSMService_pb2_grpc.add_TSMServiceServicer_to_server(TSMService(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    time.sleep(10)
 
-    channel = grpc.insecure_channel('localhost:50051')
-    stub = TSMService_pb2_grpc.TSMServiceStub(channel)
+    server_config = TSMServerPresets.grpc_server()
+    manager = ServerManager()
 
-    # Run benchmarks
-    t_single = measure_search_time(stub, ["alpha"])
-    print(f"Single search time: {t_single:.4f} seconds")
+    async with manager.managed_servers([server_config]):
+        print("Server is running under manager.")
 
-    server.stop(0)
+        channel = grpc.insecure_channel(f'localhost:{server_config.port}')
+        stub = TSMService_pb2_grpc.TSMServiceStub(channel)
+
+        # Wait for channel to be ready
+        try:
+            grpc.channel_ready_future(channel).result(timeout=10)
+        except grpc.FutureTimeoutError:
+            print("Failed to connect to server.", file=sys.stderr)
+            return
+
+        # Run benchmarks
+        t_single = measure_search_time(stub, ["alpha"])
+        print(f"Single search time: {t_single:.4f} seconds")
+
+        # Example for boolean search (commented out until fully implemented)
+        # t_and = measure_search_time(stub, ["alpha", "beta"], operator="AND")
+        # print(f"Boolean AND search time: {t_and:.4f} seconds")
+
+        # t_or = measure_search_time(stub, ["alpha", "gamma"], operator="OR")
+        # print(f"Boolean OR search time: {t_or:.4f} seconds")
+
     print("Server shutdown complete")
+
+def run_benchmarks():
+    asyncio.run(run_benchmarks_async())
 
 if __name__ == '__main__':
     run_benchmarks()
