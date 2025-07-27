@@ -53,6 +53,34 @@ class HomomorphicSearchPrototype:
         elif operator == 'OR':
             return list(set.union(*results))
 
+    def execute_and_search(self, encrypted_queries, encrypted_database):
+        """
+        Performs a homomorphic AND search.
+        """
+        for key, encrypted_value in encrypted_database.items():
+            encrypted_diff_sum = self.public_key.encrypt(0)
+            for encrypted_query in encrypted_queries:
+                encrypted_diff_sum += encrypted_value - encrypted_query
+
+            decrypted_diff = self.private_key.decrypt(encrypted_diff_sum)
+            if decrypted_diff == 0:
+                return key
+        return None
+
+    def execute_or_search(self, encrypted_queries, encrypted_database):
+        """
+        Performs a homomorphic OR search.
+        """
+        matching_keys = []
+        for key, encrypted_value in encrypted_database.items():
+            for encrypted_query in encrypted_queries:
+                encrypted_diff = encrypted_value - encrypted_query
+                decrypted_diff = self.private_key.decrypt(encrypted_diff)
+                if decrypted_diff == 0:
+                    matching_keys.append(key)
+                    break
+        return matching_keys
+
 if __name__ == '__main__':
     # Create an instance of the prototype
     prototype = HomomorphicSearchPrototype()

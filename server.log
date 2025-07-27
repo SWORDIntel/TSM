@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/app/mock_server/server.py", line 8, in <module>
+    from homomorphic_search import HomomorphicSearchPrototype
+ModuleNotFoundError: No module named 'homomorphic_search'

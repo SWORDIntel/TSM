@@ -15,6 +15,8 @@ from identity.hardware_rooted_srp import HardwareRootedSRP
 from zk_session_proof import ZKSessionProof
 from zkp_utils import serialize_point, deserialize_point
 import json
+from storage.factory import StorageFactory
+from replication import ReplicationManager
 
 class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     """
@@ -26,13 +28,13 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
     providing functionality.
     """
     
-    def __init__(self):
+    def __init__(self, search_prototype=None):
         # Initialize the database
         self.db = Database()
 
         # Initialize the homomorphic search prototype
         # This creates the encryption keys and sets up the cryptographic framework
-        self.index_manager = EncryptedIndexManager()
+        self.index_manager = EncryptedIndexManager(search_prototype=search_prototype)
         self.search_prototype = self.index_manager.get_search_prototype()
         
         # Initialize the quantum-resistant crypto module
@@ -47,16 +49,39 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         # In-memory store for ZK sessions
         self.zk_sessions = {}
 
+        # Initialize storage backends
+        self.storage_factory = StorageFactory()
+        self.storage_backends = self.storage_factory.load_from_config('storage_config.json')
+        self.replication_manager = ReplicationManager(self.storage_backends)
+
         # Generate some sample sessions and store them in the database
-        session_data = {
-            "session_alpha": ["apple", "banana", "cherry"],
-            "session_bravo": ["banana", "cherry", "date"],
-            "session_charlie": ["cherry", "date", "elderberry"],
-            "session_delta": ["date", "elderberry", "fig"],
-            "session_echo": ["elderberry", "fig", "grape"]
+        session_names = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"]
+        session_keywords = {
+            "Alpha": ["apple", "banana", "cherry"],
+            "Bravo": ["banana", "cherry", "date"],
+            "Charlie": ["cherry", "date", "elderberry"],
+            "Delta": ["date", "elderberry", "fig"],
+            "Echo": ["elderberry", "fig", "grape"]
         }
-        for session_id, keywords in session_data.items():
-            self.index_manager.update_index(session_id, keywords)
+        
+        for i, name in enumerate(session_names):
+            session_data = f"This is the secret data for session {name}".encode('utf-8')
+            encrypted_data = self.qrc.encrypt(session_data, self.qrc_public_key)
+            session_id = f"session_{name.lower()}"
+            session = TSMService_pb2.Session(
+                id=session_id,
+                name=f"Session {name}",
+                created_timestamp=int(time.time()) - (86400 * (5 - i)),
+                size_bytes=len(encrypted_data),
+                is_encrypted=True,
+                tags=["test", f"tag_{i}"]
+            )
+            self.db.upsert_session(session, pickle.dumps(encrypted_data))
+            
+            # Update both numeric index and keyword index
+            self.index_manager.update_index(session_id, i)
+            if name in session_keywords:
+                self.index_manager.update_keyword_index(session_id, session_keywords[name])
         
         print(f"TSM Service initialized with {len(session_names)} encrypted sessions in the database")
 
@@ -242,11 +267,35 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
         in the database - everything remains encrypted throughout the process.
         """
         try:
-            encrypted_keywords = [q.encode('latin-1') for q in request.encrypted_queries]
-            operator = TSMService_pb2.BooleanOperator.Name(request.operator)
-            encrypted_inverted_index = self.index_manager.get_inverted_index()
-            
-            matching_session_ids = self.search_prototype.execute_search(encrypted_keywords, encrypted_inverted_index, operator)
+            # Check if this is a keyword search or numeric search
+            if hasattr(request, 'search_type') and request.search_type == 'keyword':
+                # Keyword-based search using inverted index
+                encrypted_keywords = [q.encode('latin-1') for q in request.encrypted_queries]
+                operator = TSMService_pb2.BooleanOperator.Name(request.operator)
+                encrypted_inverted_index = self.index_manager.get_inverted_index()
+                
+                matching_session_ids = self.search_prototype.execute_search(
+                    encrypted_keywords, encrypted_inverted_index, operator
+                )
+            else:
+                # Numeric search using homomorphic comparison
+                encrypted_queries = [pickle.loads(q.encode('latin-1')) for q in request.encrypted_queries]
+                encrypted_index = self.index_manager.get_index()
+                
+                matching_session_ids = []
+                if request.operator == TSMService_pb2.EncryptedSearchRequest.AND:
+                    for session_id, encrypted_value in encrypted_index.items():
+                        encrypted_diff_sum = self.search_prototype.public_key.encrypt(0)
+                        for encrypted_query in encrypted_queries:
+                            encrypted_diff_sum += encrypted_value - encrypted_query
+
+                        decrypted_diff = self.search_prototype.private_key.decrypt(encrypted_diff_sum)
+                        if decrypted_diff == 0:
+                            matching_session_ids.append(session_id)
+                elif request.operator == TSMService_pb2.EncryptedSearchRequest.OR:
+                    matching_session_ids = self.search_prototype.execute_or_search(
+                        encrypted_queries, encrypted_index
+                    )
             
             return TSMService_pb2.SearchResponse(matching_session_ids=matching_session_ids)
                 
@@ -256,12 +305,52 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             context.set_details("Search operation failed")
             return TSMService_pb2.SearchResponse()
 
+    def GetStorageConfiguration(self, request, context):
+        with open('storage_config.json', 'r') as f:
+            config_data = json.load(f)
+
+        backends = []
+        for backend_config in config_data:
+            backends.append(TSMService_pb2.BackendConfig(
+                type=backend_config['type'],
+                parameters=backend_config
+            ))
+        return TSMService_pb2.StorageConfiguration(backends=backends)
+
+    def AddStorageBackend(self, request, context):
+        try:
+            with open('storage_config.json', 'r+') as f:
+                config_data = json.load(f)
+                config_data.append(request.backend)
+                f.seek(0)
+                json.dump(config_data, f, indent=2)
+            return TSMService_pb2.StorageOperationResponse(success=True, message="Backend added successfully.")
+        except Exception as e:
+            return TSMService_pb2.StorageOperationResponse(success=False, message=str(e))
+
+    def RemoveStorageBackend(self, request, context):
+        try:
+            with open('storage_config.json', 'r+') as f:
+                config_data = json.load(f)
+                config_data = [b for b in config_data if b['type'] != request.backend_id]
+                f.seek(0)
+                f.truncate()
+                json.dump(config_data, f, indent=2)
+            return TSMService_pb2.StorageOperationResponse(success=True, message="Backend removed successfully.")
+        except Exception as e:
+            return TSMService_pb2.StorageOperationResponse(success=False, message=str(e))
+
+
 from ai_interceptor import AISecurityInterceptor
+
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def serve():
     """
     Starts the gRPC server and handles incoming requests.
     """
+    logging.info("Initializing TSM service...")
     # Initialize the AI security module and the interceptor
     security_ai = SessionSecurityAI()
     ai_interceptor = AISecurityInterceptor(security_ai)
@@ -279,26 +368,30 @@ def serve():
     )
     
     # Register our service implementation
+    logging.info("Creating TSM service instance...")
     service = TSMService()
+    logging.info("TSM service instance created.")
     TSMService_pb2_grpc.add_TSMServiceServicer_to_server(service, server)
     
     # Bind to port 50051 on all interfaces
     # In production, consider using TLS with server.add_secure_port()
+    logging.info("Adding insecure port...")
     server.add_insecure_port('[::]:50051')
+    logging.info("Insecure port added.")
     
     # Start the server
+    logging.info("Starting server...")
     server.start()
-    print("TSM gRPC server started on port 50051...")
-    print("Ready to handle encrypted search requests")
-
+    logging.info("TSM gRPC server started on port 50051...")
+    logging.info("Ready to handle encrypted search requests")
 
     try:
         # Keep the server running
         server.wait_for_termination()
     except KeyboardInterrupt:
-        print("\nShutting down TSM server...")
+        logging.info("\nShutting down TSM server...")
         server.stop(grace_period=5)  # Give 5 seconds for cleanup
-        print("Server stopped")
+        logging.info("Server stopped")
 
 if __name__ == '__main__':
     serve()

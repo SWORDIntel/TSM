@@ -5,7 +5,7 @@ import warnings
 
 import TSMService_pb2 as TSMService__pb2
 
-GRPC_GENERATED_VERSION = '1.73.1'
+GRPC_GENERATED_VERSION = '1.74.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -94,6 +94,21 @@ class TSMServiceStub(object):
                 '/tsm.TSMService/GetMetrics',
                 request_serializer=TSMService__pb2.Empty.SerializeToString,
                 response_deserializer=TSMService__pb2.SystemMetrics.FromString,
+                _registered_method=True)
+        self.GetStorageConfiguration = channel.unary_unary(
+                '/tsm.TSMService/GetStorageConfiguration',
+                request_serializer=TSMService__pb2.Empty.SerializeToString,
+                response_deserializer=TSMService__pb2.StorageConfiguration.FromString,
+                _registered_method=True)
+        self.AddStorageBackend = channel.unary_unary(
+                '/tsm.TSMService/AddStorageBackend',
+                request_serializer=TSMService__pb2.AddStorageBackendRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.StorageOperationResponse.FromString,
+                _registered_method=True)
+        self.RemoveStorageBackend = channel.unary_unary(
+                '/tsm.TSMService/RemoveStorageBackend',
+                request_serializer=TSMService__pb2.RemoveStorageBackendRequest.SerializeToString,
+                response_deserializer=TSMService__pb2.StorageOperationResponse.FromString,
                 _registered_method=True)
 
 
@@ -185,6 +200,25 @@ class TSMServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetStorageConfiguration(self, request, context):
+        """Storage Management
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AddStorageBackend(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveStorageBackend(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_TSMServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -247,6 +281,21 @@ def add_TSMServiceServicer_to_server(servicer, server):
                     servicer.GetMetrics,
                     request_deserializer=TSMService__pb2.Empty.FromString,
                     response_serializer=TSMService__pb2.SystemMetrics.SerializeToString,
+            ),
+            'GetStorageConfiguration': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStorageConfiguration,
+                    request_deserializer=TSMService__pb2.Empty.FromString,
+                    response_serializer=TSMService__pb2.StorageConfiguration.SerializeToString,
+            ),
+            'AddStorageBackend': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddStorageBackend,
+                    request_deserializer=TSMService__pb2.AddStorageBackendRequest.FromString,
+                    response_serializer=TSMService__pb2.StorageOperationResponse.SerializeToString,
+            ),
+            'RemoveStorageBackend': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveStorageBackend,
+                    request_deserializer=TSMService__pb2.RemoveStorageBackendRequest.FromString,
+                    response_serializer=TSMService__pb2.StorageOperationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -574,6 +623,87 @@ class TSMService(object):
             '/tsm.TSMService/GetMetrics',
             TSMService__pb2.Empty.SerializeToString,
             TSMService__pb2.SystemMetrics.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetStorageConfiguration(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/GetStorageConfiguration',
+            TSMService__pb2.Empty.SerializeToString,
+            TSMService__pb2.StorageConfiguration.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddStorageBackend(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/AddStorageBackend',
+            TSMService__pb2.AddStorageBackendRequest.SerializeToString,
+            TSMService__pb2.StorageOperationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RemoveStorageBackend(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/tsm.TSMService/RemoveStorageBackend',
+            TSMService__pb2.RemoveStorageBackendRequest.SerializeToString,
+            TSMService__pb2.StorageOperationResponse.FromString,
             options,
             channel_credentials,
             insecure,

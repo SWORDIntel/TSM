@@ -1,0 +1,1 @@
+{"priority": ["network", "time"], "default": "session_default_safe", "contexts": {"network": {"Secure_LAN": "session_alpha_trusted", "Public_WiFi": "session_gamma_stealth"}, "time": {"Work_Hours": "session_beta_corp"}}}
