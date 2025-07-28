@@ -280,22 +280,11 @@ class TSMService(TSMService_pb2_grpc.TSMServiceServicer):
             else:
                 # Numeric search using homomorphic comparison
                 encrypted_queries = [pickle.loads(q.encode('latin-1')) for q in request.encrypted_queries]
-                encrypted_index = self.index_manager.get_index()
                 
-                matching_session_ids = []
-                if request.operator == TSMService_pb2.EncryptedSearchRequest.AND:
-                    for session_id, encrypted_value in encrypted_index.items():
-                        encrypted_diff_sum = self.search_prototype.public_key.encrypt(0)
-                        for encrypted_query in encrypted_queries:
-                            encrypted_diff_sum += encrypted_value - encrypted_query
-
-                        decrypted_diff = self.search_prototype.private_key.decrypt(encrypted_diff_sum)
-                        if decrypted_diff == 0:
-                            matching_session_ids.append(session_id)
-                elif request.operator == TSMService_pb2.EncryptedSearchRequest.OR:
-                    matching_session_ids = self.search_prototype.execute_or_search(
-                        encrypted_queries, encrypted_index
-                    )
+                operator = TSMService_pb2.EncryptedSearchRequest.BooleanOperator.Name(request.operator)
+                matching_session_ids = self.search_prototype.search_boolean(
+                    encrypted_queries, operator
+                )
             
             return TSMService_pb2.SearchResponse(matching_session_ids=matching_session_ids)
                 

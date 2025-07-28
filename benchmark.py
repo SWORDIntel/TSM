@@ -45,9 +45,9 @@ async def run_benchmarks_async():
 
         # Wait for channel to be ready
         try:
-            grpc.channel_ready_future(channel).result(timeout=10)
-        except grpc.FutureTimeoutError:
-            print("Failed to connect to server.", file=sys.stderr)
+            await channel.channel_ready()
+        except grpc.aio.AioRpcError as e:
+            print(f"Failed to connect to server: {e}", file=sys.stderr)
             return
 
         # Run benchmarks

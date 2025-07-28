@@ -36,3 +36,14 @@ class DecentralizedIdentityManager:
         """
         did_document = DidDocument("key", did_url)
         return json.loads(did_document.to_json())
+
+    def authenticate_with_zkp(self, proof):
+        """
+        Authenticates a user with a Zero-Knowledge Proof.
+        """
+        # In a real implementation, this would involve a ZKP verifier
+        # that checks the proof against a known public key or commitment.
+        # For this example, we'll just assume the proof is valid if it's not empty.
+        if proof:
+            return "session_token"
+        return None

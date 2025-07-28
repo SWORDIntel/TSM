@@ -10,6 +10,7 @@ class HomomorphicSearchPrototype:
         Initializes the prototype by generating a Paillier keypair.
         """
         self.public_key, self.private_key = paillier.generate_paillier_keypair()
+        self.encrypted_database = {}
 
     def encrypt_keyword(self, keyword):
         """
@@ -81,6 +82,15 @@ class HomomorphicSearchPrototype:
                     break
         return matching_keys
 
+    def search_boolean(self, encrypted_queries, operator):
+        """
+        Performs a boolean search on the encrypted data.
+        """
+        if operator == "AND":
+            return self.execute_and_search(encrypted_queries, self.encrypted_database)
+        elif operator == "OR":
+            return self.execute_or_search(encrypted_queries, self.encrypted_database)
+
 if __name__ == '__main__':
     # Create an instance of the prototype
     prototype = HomomorphicSearchPrototype()
@@ -95,21 +105,20 @@ if __name__ == '__main__':
     }
 
     # Encrypt the database
-    encrypted_database = {}
     for key, values in plain_database.items():
-        encrypted_database[key] = [prototype.public_key.encrypt(v) for v in values]
+        prototype.encrypted_database[key] = [prototype.public_key.encrypt(v) for v in values]
 
     # Generate encrypted queries
     search_terms = [3, 4]
-    encrypted_queries = [prototype.generate_encrypted_query(term) for term in search_terms]
+    encrypted_queries = [prototype.public_key.encrypt(term) for term in search_terms]
 
     # Execute the search with AND operator
-    matching_keys_and = prototype.execute_search(encrypted_queries, encrypted_database, 'AND')
+    matching_keys_and = prototype.search_boolean(encrypted_queries, 'AND')
     print(f"Found matches for search terms {search_terms} with AND operator at keys: {matching_keys_and}")
     assert "charlie" in matching_keys_and
 
     # Execute the search with OR operator
-    matching_keys_or = prototype.execute_search(encrypted_queries, encrypted_database, 'OR')
+    matching_keys_or = prototype.search_boolean(encrypted_queries, 'OR')
     print(f"Found matches for search terms {search_terms} with OR operator at keys: {matching_keys_or}")
     assert "bravo" in matching_keys_or
     assert "charlie" in matching_keys_or

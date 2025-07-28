@@ -426,6 +426,14 @@ class TSMDesktop(App):
         """Push the storage management screen."""
         self.push_screen(StorageManagementScreen())
 
+    def show_zkp_auth_option(self):
+        """
+        Shows the ZK-proof authentication option in the UI.
+        """
+        # In a real application, this would add a button or menu item
+        # to the UI. For this example, we'll just log a message.
+        self.log("ZK-proof authentication is available.")
+
     def list_storage_backends(self) -> None:
         if not self.stub:
             self.log("Error: Not connected to server")
