@@ -115,6 +115,10 @@ enum BooleanOperator {
 
 // Request for encrypted search
 message EncryptedSearchRequest {
+  enum BooleanOperator {
+    AND = 0;
+    OR = 1;
+  }
   repeated string encrypted_queries = 1;
   BooleanOperator operator = 2;
   // Optional: specify search type (for future extensibility)
