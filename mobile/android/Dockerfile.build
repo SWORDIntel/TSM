@@ -1,0 +1,14 @@
+FROM openjdk:11-jdk
+
+# Install Android SDK
+RUN mkdir -p /android-sdk && \
+    wget https://dl.google.com/android/repository/commandlinetools-linux-latest.zip && \
+    unzip -d /android-sdk commandlinetools-linux-latest.zip
+
+# Set environment variables
+ENV ANDROID_SDK_ROOT=/android-sdk
+ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+
+# Install build tools
+RUN yes | sdkmanager --licenses && \
+    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
