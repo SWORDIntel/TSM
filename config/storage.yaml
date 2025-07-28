@@ -1,0 +1,6 @@
+backends:
+  - type: s3
+    endpoint: minio.local:9000
+    bucket: tsm-sessions
+  - type: local
+    path: /var/tsm/sessions
