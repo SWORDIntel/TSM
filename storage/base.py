@@ -54,3 +54,13 @@ class StorageBackend(ABC):
             A list of all locators.
         """
         pass
+
+    async def store_with_failover(self, session_data):
+        """
+        Stores session data with failover to another backend.
+        """
+        for backend in self.backends:
+            try:
+                return await backend.store(session_data)
+            except Exception:
+                continue
