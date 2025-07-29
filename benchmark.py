@@ -1,6 +1,6 @@
 import time
 import pickle
-import grpc
+import grpc.aio as aio
 from concurrent import futures
 import sys
 import os
@@ -13,7 +13,7 @@ import TSMService_pb2_grpc
 from homomorphic_search import HomomorphicSearchPrototype
 from server_manager import ServerManager, TSMServerPresets
 
-def measure_search_time(stub, search_terms, operator=None):
+async def measure_search_time(stub, search_terms, operator=None):
     print(f"Measuring search time for terms: {search_terms} with operator: {operator}")
     search_prototype = HomomorphicSearchPrototype()
     encrypted_queries = [
@@ -26,7 +26,7 @@ def measure_search_time(stub, search_terms, operator=None):
     )
 
     start_time = time.time()
-    response = stub.EncryptedSearch(request)
+    response = await stub.EncryptedSearch(request)
     end_time = time.time()
 
     return end_time - start_time
@@ -37,28 +37,38 @@ async def run_benchmarks_async():
     server_config = TSMServerPresets.grpc_server()
     manager = ServerManager()
 
-    async with manager.managed_servers([server_config]):
+    print("Starting server manager...")
+    async with manager.managed_servers([server_config]) as svr_manager:
         print("Server is running under manager.")
 
-        channel = grpc.insecure_channel(f'localhost:{server_config.port}')
+        print(f"Connecting to server at localhost:{server_config.port}...")
+        channel = aio.insecure_channel(f'localhost:{server_config.port}')
         stub = TSMService_pb2_grpc.TSMServiceStub(channel)
 
         # Wait for channel to be ready
+        print("Waiting for channel to be ready...")
         try:
-            await channel.channel_ready()
-        except grpc.aio.AioRpcError as e:
+            await asyncio.wait_for(channel.channel_ready(), timeout=10.0)
+            print("Channel is ready.")
+        except asyncio.TimeoutError:
+            print("Failed to connect to server: channel ready timeout", file=sys.stderr)
+            return
+        except grpc.RpcError as e:
             print(f"Failed to connect to server: {e}", file=sys.stderr)
             return
 
         # Run benchmarks
-        t_single = measure_search_time(stub, ["alpha"])
+        print("Running single search benchmark...")
+        t_single = await measure_search_time(stub, ["alpha"])
         print(f"Single search time: {t_single:.4f} seconds")
 
         # Example for boolean search (commented out until fully implemented)
-        # t_and = measure_search_time(stub, ["alpha", "beta"], operator="AND")
+        # print("Running AND search benchmark...")
+        # t_and = await measure_search_time(stub, ["alpha", "beta"], operator="AND")
         # print(f"Boolean AND search time: {t_and:.4f} seconds")
 
-        # t_or = measure_search_time(stub, ["alpha", "gamma"], operator="OR")
+        # print("Running OR search benchmark...")
+        # t_or = await measure_search_time(stub, ["alpha", "gamma"], operator="OR")
         # print(f"Boolean OR search time: {t_or:.4f} seconds")
 
     print("Server shutdown complete")

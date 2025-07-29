@@ -93,7 +93,6 @@ class TSMDesktop(App):
         ("r", "refresh", "Refresh Sessions"),
         ("c", "clear_log", "Clear Log"),
         ("m", "manage_storage", "Manage Storage"),
-        ("z", "zk_auth", "ZK Auth"),
         ("q", "quit", "Quit"),
     ]
 
@@ -141,6 +140,7 @@ class TSMDesktop(App):
             # No YubiKey detected - connect anyway for prototype
             self.log("No YubiKey detected - using development mode")
             self.connect_to_server()
+            self.action_zk_auth()
 
     def connect_to_server(self) -> None:
         """Establish connection to the TSM gRPC server."""

@@ -68,7 +68,7 @@ class ServerConfig:
     env_vars: Dict[str, str] = field(default_factory=dict)
     port: Optional[int] = None
     host: str = "localhost"
-    startup_timeout: float = 30.0
+    startup_timeout: float = 60.0
     shutdown_timeout: float = 10.0
     health_check_interval: float = 5.0
     health_check_timeout: float = 2.0
